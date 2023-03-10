@@ -17,10 +17,10 @@ import java.util.Set;
 @Service
 public class NewsCommandService {
 
-    private  final NewsRepository newsRepository;
+    private final NewsRepository newsRepository;
     private final TransactionalWrapper transactionalWrapper;
 
-    private  final NewsRequestResponseMapper newsRequestResponseMapper;
+    private final NewsRequestResponseMapper newsRequestResponseMapper;
 
     public NewsCommandService(NewsRepository newsRepository,
                               TransactionalWrapper transactionalWrapper,
@@ -31,51 +31,48 @@ public class NewsCommandService {
         this.newsRequestResponseMapper = newsRequestResponseMapper;
     }
 
-    public NewsResponse saveNewsResponse(NewsRequest newsRequest){
+    public NewsResponse saveNewsResponse(NewsRequest newsRequest) {
         News newsForSaving = newsRequestResponseMapper.getNewsForSaving(newsRequest);
-        Action<News> action = (arangoDatabase, transactionId)-> newsRepository.save(newsForSaving);
+        Action<News> action = (arangoDatabase, transactionId) -> newsRepository.save(newsForSaving);
         News savedNews = transactionalWrapper.executeInsideTransaction(Set.of("NEWS"), action);
         return newsRequestResponseMapper.getNewsResponse(savedNews);
     }
 
     // TODO: 10-03-2023 "updated case"
-    public String updateNews(NewsRequest newsRequest){
-//        News news = newsRepository.getNewsById(newsRequest.getId());
-        Optional<News> news = newsRepository.findById(newsRequest.getId());
-        if(news.isPresent()){
-            News newsForSaving = newsRequestResponseMapper.getNewsForSaving(newsRequest);
-            Action<News> action = (arangoDatabase, transactionId)-> newsRepository.save(newsForSaving);
-            News savedNews = transactionalWrapper.executeInsideTransaction(Set.of("NEWS"), action);
-            newsRequestResponseMapper.getNewsResponse(savedNews);
-        }
+    public String updateNews(NewsRequest newsRequest) {
+        News news = newsRepository.getNewsById(newsRequest.getId());
+        //News news = newsRepository.findById(newsRequest.getId());
+        News newsForSaving = newsRequestResponseMapper.getNewsForSaving(newsRequest);
+        Action<News> action = (arangoDatabase, transactionId) -> newsRepository.save(newsForSaving);
+        News savedNews = transactionalWrapper.executeInsideTransaction(Set.of("NEWS"), action);
+        newsRequestResponseMapper.getNewsResponse(savedNews);
         return "updated";
     }
 
-    public NewsResponse publishNews(String newsId){
+    public NewsResponse publishNews(String newsId) {
         Optional<News> optionalNews = newsRepository.findById(newsId);
 
-        if(optionalNews.isPresent()){
+        if (optionalNews.isPresent()) {
             News news = optionalNews.get();
             news.setNewsStatus(NewsStatus.PUBLISHED);
-            Action<News> action = (arangoDatabase, transactionId)-> newsRepository.save(news);
+            Action<News> action = (arangoDatabase, transactionId) -> newsRepository.save(news);
             News savedNews = transactionalWrapper.executeInsideTransaction(Set.of("NEWS"), action);
             return newsRequestResponseMapper.getNewsResponse(savedNews);
-        }else {
+        } else {
             throw new RuntimeException("News with this id is not found");
         }
     }
 
-    public String deleteNews(String id){
+    public String deleteNews(String id) {
         Optional<News> news = newsRepository.findById(id);
-        if(news.isPresent()){
+        if (news.isPresent()) {
             News news1 = news.get();
             news1.setStatus(Status.DELETED);
             newsRepository.save(news1);
 
         }
-        return  "deleted";
+        return "deleted";
     }
-
 
 
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 
 @Service
 @Validated
@@ -23,15 +24,15 @@ public class NewsMutationResolver implements GraphQLMutationResolver {
         return newsCommandService.saveNewsResponse(newsRequest);
     }
 
-   public NewsResponse publishNews(String newsId){
+   public NewsResponse publishNews(@NotBlank String newsId){
         return  newsCommandService.publishNews(newsId);
    }
 
-   public String deleteNews(String id){
+   public String deleteNews(@NotBlank String id){
         return newsCommandService.deleteNews(id);
    }
 
-   public String updateNews(NewsRequest newsRequest){
+   public String updateNews(@Valid NewsRequest newsRequest){
         return newsCommandService.updateNews(newsRequest);
    }
 }

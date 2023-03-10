@@ -63,3 +63,10 @@ enum NewsStatus{
     DRAFT
 
 }
+
+enum Status{
+    ACTIVE,
+    INACTIVE,
+    BOTH,
+    DELETED
+}
