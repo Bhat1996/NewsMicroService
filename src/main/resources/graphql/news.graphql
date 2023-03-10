@@ -1,0 +1,65 @@
+schema {
+    mutation: Mutation
+    query: Query
+}
+
+type Mutation{
+    savedNews(news:NewsRequest):NewsResponse
+    deleteNews(id:String):String
+    publishNews(newsId:String):NewsResponse
+    updateNews(newsRequest:NewsRequest):String
+}
+
+type  Query{
+    getAllNews(newsStatus:NewsStatus):[NewsResponse]
+}
+
+input NewsRequest{
+    id:String
+    title: LanguageSupport
+    description:LanguageSupport
+    slugTitle:LanguageSupport
+    newsStatus : NewsStatus
+    hashTagIds:[String]
+    remarks:String
+    interestIds:[String]
+    newsSource: String
+    sourceLink:String
+    countryIds:[String]
+    publishAndNotify:Boolean
+
+}
+
+type NewsResponse{
+    id:String
+    arangoId:String
+    title: LanguageSupportResponse
+    description:LanguageSupportResponse
+    slugTitle:LanguageSupportResponse
+    newsStatus: NewsStatus
+    hashTagIds:[String]
+    remarks:String
+    interestIds:[String]
+    newsSource: String
+    sourceLink:String
+    countryIds:[String]
+    publishAndNotify:Boolean
+}
+input LanguageSupport{
+    en:String
+    hn: String!
+    pb: String
+}
+
+type LanguageSupportResponse{
+    en:String
+    hn: String
+    pb: String
+}
+
+
+enum NewsStatus{
+    PUBLISHED,
+    DRAFT
+
+}
