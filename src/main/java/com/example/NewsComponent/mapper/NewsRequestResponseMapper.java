@@ -19,6 +19,6 @@ public interface NewsRequestResponseMapper {
 
     //@Mapping(source = "news",target = "newsRequest")
    // @Mapping(target = "NewsRequest",ignore = true)
-    NewsRequest getNewsById(@MappingTarget NewsRequest newsRequest, News news );
+    News updateNews(@MappingTarget News news, NewsRequest newsRequest);
 
 }

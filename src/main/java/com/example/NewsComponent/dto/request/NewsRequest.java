@@ -14,12 +14,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
-@Service
 @Getter
 @Setter
 public class NewsRequest {
 
-    @Id
     private String id;
     @NotNull
     private LanguageSupport title;
