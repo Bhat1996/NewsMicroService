@@ -4,6 +4,7 @@ import com.arangodb.springframework.annotation.ArangoId;
 import com.arangodb.springframework.annotation.Document;
 import com.example.NewsComponent.domain.embedded.LanguageSupport;
 import com.example.NewsComponent.enums.NewsStatus;
+import com.example.NewsComponent.enums.SortingOrder;
 import com.example.NewsComponent.enums.Status;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +18,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-@Document("NEWS")
+@Document("news")
 public class News {
 
     @Id
@@ -31,6 +32,7 @@ public class News {
     private List<String> hashTagIds;
     private boolean publishAndNotify = false;
     private NewsStatus newsStatus;
+    private SortingOrder sortingOrder;
     private Status status;
     @NotBlank
     private String remarks;

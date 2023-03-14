@@ -22,7 +22,8 @@ public class NewsRepository {
     private final ArangoOperations arangoOperations;
     private final ArangoConverter arangoConverter;
 
-    public NewsRepository(ArangoOperations arangoOperations, ArangoConverter arangoConverter) {
+    public NewsRepository(ArangoOperations arangoOperations,
+                          ArangoConverter arangoConverter) {
         this.arangoOperations = arangoOperations;
         this.arangoConverter = arangoConverter;
     }
@@ -35,7 +36,7 @@ public class NewsRepository {
                 return doc
                 """;
         Map<String, String> queryFiller = Map.of(
-                "coll", "NEWS",
+                "coll", "news",
                 "id", id);
         String finalQuery = new StringSubstitutor(queryFiller).replace(query);
         ArangoCursor<News> cursor = arangoOperations.query(finalQuery, News.class);
@@ -49,7 +50,7 @@ public class NewsRepository {
 
     public News saveNews(ArangoDatabase arangoDatabase, String transactionId, News news) {
 
-        DocumentCreateEntity<VPackSlice> createEntity = arangoDatabase.collection("NEWS")
+        DocumentCreateEntity<VPackSlice> createEntity = arangoDatabase.collection("news")
                 .insertDocument(arangoConverter.write(news),
                         new DocumentCreateOptions()
                                 .streamTransactionId(transactionId)
@@ -60,9 +61,9 @@ public class NewsRepository {
     }
 
     public News updateNews(ArangoDatabase arangoDatabase, String transactionId, News news) {
-        DocumentUpdateEntity<VPackSlice> updatedNews = arangoDatabase.collection("NEWS")
+        DocumentUpdateEntity<VPackSlice> updatedNews = arangoDatabase.collection("news")
                 .updateDocument(news.getId(), arangoConverter.write(news),
-                new DocumentUpdateOptions()
+                     new DocumentUpdateOptions()
                         .streamTransactionId(transactionId).returnNew(true));
         VPackSlice aNew = updatedNews.getNew();
         return arangoConverter.read(News.class,aNew);

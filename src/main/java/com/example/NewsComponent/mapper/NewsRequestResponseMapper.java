@@ -11,14 +11,10 @@ import org.springframework.stereotype.Service;
 @Mapper(componentModel = "spring")
 public interface NewsRequestResponseMapper {
 
-   // NewsRequestResponseMapper INSTANCE= Mappers.getMapper(NewsRequestResponseMapper.class);
-
     News getNewsForSaving(NewsRequest newsRequest);
 
     NewsResponse getNewsResponse(News news);
 
-    //@Mapping(source = "news",target = "newsRequest")
-   // @Mapping(target = "NewsRequest",ignore = true)
     News updateNews(@MappingTarget News news, NewsRequest newsRequest);
 
 }

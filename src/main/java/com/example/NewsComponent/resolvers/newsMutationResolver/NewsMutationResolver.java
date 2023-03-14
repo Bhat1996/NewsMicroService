@@ -7,8 +7,10 @@ import graphql.kickstart.tools.GraphQLMutationResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import javax.servlet.http.Part;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 @Service
 @Validated

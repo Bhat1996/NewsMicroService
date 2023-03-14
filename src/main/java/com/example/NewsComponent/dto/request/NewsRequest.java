@@ -2,6 +2,7 @@ package com.example.NewsComponent.dto.request;
 
 import com.example.NewsComponent.domain.embedded.LanguageSupport;
 import com.example.NewsComponent.enums.NewsStatus;
+import com.example.NewsComponent.enums.SortingOrder;
 import com.example.NewsComponent.enums.Status;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,6 +28,7 @@ public class NewsRequest {
     private boolean publishAndNotify = false;
     private NewsStatus newsStatus;
     private Status status;
+    private SortingOrder sortingOrder;
     @NotBlank
     private String remarks;
     @NotNull

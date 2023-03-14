@@ -57,11 +57,31 @@ type LanguageSupportResponse{
     pb: String
 }
 
+#input PaginationFilter{
+#    offset : Int = 0
+#    limit : Int = 10
+#    order : SortingOrder = ASC
+#}
+#
+#type PageInfo{
+#    offset : Int
+#    hasNext : Boolean
+#    hasPrevious : Boolean
+##    totalCounts : Long
+#    limit : Int
+#    pageNumber : Int
+#    order : SortingOrder
+#}
+#
+#enum SortingOrder{
+#    ASC,
+#    DESC
+#}
 
 enum NewsStatus{
     PUBLISHED,
-    DRAFT
-
+    DRAFT,
+    PUBLISHANDNOTIFY
 }
 
 enum Status{

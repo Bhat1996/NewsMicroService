@@ -26,7 +26,7 @@ public class NewsQueryService {
     public List<NewsResponse> getAllNews(NewsStatus newsStatus) {
         if (newsStatus.equals(NewsStatus.PUBLISHED)) {
             String query = """
-                    for doc in NEWS
+                    for doc in news
                     filter doc.newsStatus == "PUBLISHED"
                     return doc
                     """;
@@ -36,7 +36,7 @@ public class NewsQueryService {
             return news.stream().map(newsRequestResponseMapper::getNewsResponse).toList();
         } else {
             String query = """
-                    for doc in NEWS
+                    for doc in news
                     filter doc.newsStatus == "DRAFT"
                     return doc
                     """;
