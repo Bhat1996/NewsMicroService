@@ -11,7 +11,7 @@ public class EdgeName {
 //
 //    public static final String IS_TEHSIL_OF_DISTRICT = "isTehsilOfDistrict";
 //
-//    public static final String IS_VILLAGE_OF_TEHSIL = "isVillageOfTehsil";
+  public static final String NEWS_IS_FOR_LOCATION = "newsIsForLocation";
 
     public static final String NEWS_HAS_INTEREST="newsHasInterest";
 

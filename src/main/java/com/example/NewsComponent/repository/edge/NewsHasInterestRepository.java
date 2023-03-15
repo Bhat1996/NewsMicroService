@@ -28,4 +28,5 @@ public class NewsHasInterestRepository {
         return arangoConverter.read(NewsHasInterest.class, aNew);
 
     }
+
 }

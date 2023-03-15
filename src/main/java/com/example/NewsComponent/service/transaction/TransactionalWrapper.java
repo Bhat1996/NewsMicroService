@@ -21,7 +21,7 @@ public class TransactionalWrapper {
         this.arangoOperations = arangoOperations;
     }
 
-    public <T> T executeInsideTransaction(Set<String> collectionsNameToActivateTransaction, Action<T> action) {
+    public <T> T executeInsideTransaction(Set<String> collectionsNameToActivateTransaction, Action<T> action)  {
         arangoDatabase = arangoOperations.driver()
                 .db(dbName);
         String transactionId = getTransactionId(collectionsNameToActivateTransaction);

@@ -27,7 +27,10 @@ input NewsRequest{
     sourceLink:String
     countryIds:[String]
     publishAndNotify:Boolean
-
+    stateIds:[String]
+    districtIds:[String]
+    tehsilIds:[String]
+    villageIds:[String]
 }
 
 type NewsResponse{
@@ -44,6 +47,10 @@ type NewsResponse{
     sourceLink:String
     countryIds:[String]
     publishAndNotify:Boolean
+    stateIds:[String]
+    districtIds:[String]
+    tehsilIds:[String]
+    villageIds:[String]
 }
 input LanguageSupport{
     en:String
@@ -80,8 +87,7 @@ type LanguageSupportResponse{
 
 enum NewsStatus{
     PUBLISHED,
-    DRAFT,
-    PUBLISHANDNOTIFY
+    DRAFT
 }
 
 enum Status{

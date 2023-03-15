@@ -14,7 +14,6 @@ public class VertexName {
     public static final String TEHSIL = "tehsils";
 
     public static final String VILLAGE = "villages";
-
     public  static final String NEWS ="news";
 
     public static List<String> namesAsList() {

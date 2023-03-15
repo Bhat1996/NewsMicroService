@@ -28,7 +28,6 @@ public class NewsRepository {
         this.arangoConverter = arangoConverter;
     }
 
-
     public News getNewsById(String id) {
         String query = """
                 for doc in ${coll}

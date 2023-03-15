@@ -19,7 +19,7 @@ public class NewsHasHashTagRepository {
     public NewsHasHashTag saveNewsHasHashtagsEdge(ArangoDatabase arangoDatabase,
                                                   String transactionId,
                                                   NewsHasHashTag newsHasHashTag) {
-        DocumentCreateEntity<VPackSlice> documentCreateEntity = arangoDatabase.collection("newsHasHashTags").
+        DocumentCreateEntity<VPackSlice> documentCreateEntity = arangoDatabase.collection("newsHasHashTag").
                 insertDocument(arangoConverter.write(newsHasHashTag),
                         new DocumentCreateOptions().streamTransactionId(transactionId).returnNew(true));
         VPackSlice aNew = documentCreateEntity.getNew();
