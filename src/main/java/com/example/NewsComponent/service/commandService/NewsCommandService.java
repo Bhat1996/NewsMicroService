@@ -14,6 +14,7 @@ import com.example.NewsComponent.repository.NewsRepository;
 import com.example.NewsComponent.repository.edge.NewsHasHashTagRepository;
 import com.example.NewsComponent.repository.edge.NewsHasInterestRepository;
 import com.example.NewsComponent.repository.edge.NewsIsForLocationRepository;
+import com.example.NewsComponent.service.external.NotificationService;
 import com.example.NewsComponent.service.transaction.Action;
 import com.example.NewsComponent.service.transaction.TransactionalWrapper;
 import org.apache.commons.lang3.StringUtils;
@@ -33,24 +34,30 @@ public class NewsCommandService {
     private final NewsRepository newsRepository;
     private final NewsHasInterestRepository newsHasInterestRepository;
     private final NewsHasHashTagRepository newsHasHashTagRepository;
+    private final NotificationService notificationService;
     private final TransactionalWrapper transactionalWrapper;
     private final NewsIsForLocationRepository newsIsForLocationRepository;
 
     private final NewsRequestResponseMapper newsRequestResponseMapper;
 
     public NewsCommandService(NewsRepository newsRepository,
-                              NewsHasInterestRepository newsHasInterestRepository, NewsHasHashTagRepository newsHasHashTagRepository, TransactionalWrapper transactionalWrapper,
-                              NewsIsForLocationRepository newsIsForLocationRepository, NewsRequestResponseMapper newsRequestResponseMapper) {
+                              NewsHasInterestRepository newsHasInterestRepository,
+                              NewsHasHashTagRepository newsHasHashTagRepository,
+                              NotificationService notificationService,
+                              TransactionalWrapper transactionalWrapper,
+                              NewsIsForLocationRepository newsIsForLocationRepository,
+                              NewsRequestResponseMapper newsRequestResponseMapper) {
         this.newsRepository = newsRepository;
         this.newsHasInterestRepository = newsHasInterestRepository;
         this.newsHasHashTagRepository = newsHasHashTagRepository;
+        this.notificationService = notificationService;
         this.transactionalWrapper = transactionalWrapper;
         this.newsIsForLocationRepository = newsIsForLocationRepository;
 
         this.newsRequestResponseMapper = newsRequestResponseMapper;
     }
 
-    //TODO media and publish location
+    //TODO media
     public NewsResponse saveNewsResponse(NewsRequest newsRequest) {
         News newsForSaving = newsRequestResponseMapper.getNewsForSaving(newsRequest);
 
@@ -77,7 +84,8 @@ public class NewsCommandService {
             return news;
 
         };
-        News savedNews = transactionalWrapper.executeInsideTransaction(Set.of(NEWS, NEWS_HAS_INTEREST, NEWS_HAS_HASHTAG, NEWS_IS_FOR_LOCATION), action);
+        News savedNews = transactionalWrapper.executeInsideTransaction
+                (Set.of(NEWS, NEWS_HAS_INTEREST, NEWS_HAS_HASHTAG, NEWS_IS_FOR_LOCATION), action);
         return newsRequestResponseMapper.getNewsResponse(savedNews);
     }
 
@@ -153,31 +161,12 @@ public class NewsCommandService {
 
     }
 
-    //TODO add notify method to this
     public NewsResponse publishAndNotify(String newsId) {
         News newsById = newsRepository.getNewsById(newsId);
-        Set<String> countryIds = newsById.getCountryIds();
-        Set<String> stateIds = newsById.getStateIds();
-        Set<String> districtIds = newsById.getDistrictIds();
-        Set<String> tehsilIds = newsById.getTehsilIds();
-        Set<String> villageIds = newsById.getVillageIds();
-
-        Location location = new Location();
-        String countryId = String.join(",", countryIds);
-        String stateId = String.join(",", stateIds);
-        String districtId = String.join(",", districtIds);
-        String tehsilId = String.join(",", tehsilIds);
-        String villageId = String.join(",", villageIds);
-
-        location.setCountryID(countryId);
-        location.setStateID(stateId);
-        location.setDistrictID(districtId);
-        location.setTehsilID(tehsilId);
-        location.setVillageID(villageId);
-
         String en = newsById.getTitle().getEn();
         String pb = newsById.getTitle().getPb();
 
+        Location location = getPublishedLocationForNotify(newsById);
         String language = "hn";
         if (StringUtils.isNotBlank(en)) {
             language = String.join(",", "en");
@@ -187,22 +176,41 @@ public class NewsCommandService {
         }
         location.setLang(language);
 
-        List<String> interestIds = newsById.getInterestIds();
-        String interestId = String.join(",", interestIds);
 
         Interests interests = new Interests();
-        interests.setKeywordName(interestId);
+        interests.setKeywordName(String.join(",", newsById.getInterestIds()));
 
+        Filter filter = getFilter(location, interests);
+
+        Messages messages = new Messages();
+        messages.setContent(newsById.getTitle());
+
+        NotificationRequest notificationRequest = getNotificationRequest(newsId, filter, messages);
+        //notificationService.sendNotification(notificationRequest);
+        return publishNews(newsId);
+    }
+
+    public static Location getPublishedLocationForNotify(News newsById) {
+        Location location = new Location();
+
+        location.setCountryID(String.join(",", newsById.getCountryIds()));
+        location.setStateID(String.join(",", newsById.getStateIds()));
+        location.setDistrictID(String.join(",", newsById.getDistrictIds()));
+        location.setTehsilID(String.join(",", newsById.getTehsilIds()));
+        location.setVillageID(String.join(",", newsById.getVillageIds()));
+        return location;
+    }
+
+    public static Filter getFilter(Location location, Interests interests) {
         Filter filter = new Filter();
         filter.setApp("Apni Kheti");
         filter.setPhone("");
         filter.setInterests(interests);
         filter.setLocation(location);
+        return filter;
+    }
 
-        Messages messages = new Messages();
-        messages.setContent(newsById.getTitle());
-
-
+    public static NotificationRequest getNotificationRequest(String newsId, Filter filter, Messages messages) {
         NotificationRequest notificationRequest = new NotificationRequest();
         notificationRequest.setAction(newsId);
         notificationRequest.setPriority("Normal");
@@ -213,10 +221,11 @@ public class NewsCommandService {
         notificationRequest.setTranslations(List.of());
         notificationRequest.setPostedBy("ak");
         notificationRequest.setUserImage("");
-
+        return notificationRequest;
     }
 
     public String deleteNews(String id) {
+
         News news = newsRepository.getNewsById(id);
         news.setStatus(Status.DELETED);
         Action<News> action = (arangoDatabase, transactionId) ->

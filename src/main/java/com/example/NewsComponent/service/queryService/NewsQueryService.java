@@ -7,9 +7,11 @@ import com.example.NewsComponent.dto.response.NewsResponse;
 import com.example.NewsComponent.enums.NewsStatus;
 
 import com.example.NewsComponent.mapper.NewsRequestResponseMapper;
+import org.apache.commons.text.StringSubstitutor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class NewsQueryService {
@@ -24,27 +26,19 @@ public class NewsQueryService {
     }
 
     public List<NewsResponse> getAllNews(NewsStatus newsStatus) {
-        if (newsStatus.equals(NewsStatus.PUBLISHED)) {
+
             String query = """
                     for doc in news
-                    filter doc.newsStatus == "PUBLISHED"
+                    filter doc.newsStatus == '${newsStatus}'
                     return doc
                     """;
-            ArangoCursor<News> cursor = arangoOperations.query(query, News.class);
+            Map<String, String> queryParams = Map.of("newsStatus", newsStatus.toString());
+            String finalQuery = new StringSubstitutor(queryParams).replace(query);
+            ArangoCursor<News> cursor = arangoOperations.query(finalQuery, News.class);
             List<News> news = cursor.asListRemaining();
             //return news.stream().map(news1 -> newsMapper.getNewsResponse(news1)).collect(Collectors.toList());
             return news.stream().map(newsRequestResponseMapper::getNewsResponse).toList();
-        } else {
-            String query = """
-                    for doc in news
-                    filter doc.newsStatus == "DRAFT"
-                    return doc
-                    """;
-            ArangoCursor<News> cursor = arangoOperations.query(query, News.class);
-            List<News> news = cursor.asListRemaining();
-            //return news.stream().map(news1 -> newsMapper.getNewsResponse(news1)).collect(Collectors.toList());
-            return news.stream().map(newsRequestResponseMapper::getNewsResponse).toList();
-        }
+
     }
 
 

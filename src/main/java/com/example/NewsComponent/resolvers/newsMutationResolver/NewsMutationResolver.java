@@ -30,6 +30,10 @@ public class NewsMutationResolver implements GraphQLMutationResolver {
         return  newsCommandService.publishNews(newsId);
    }
 
+   public  NewsResponse publishAndNotify(@NotBlank String newsId){
+        return newsCommandService.publishAndNotify(newsId);
+   }
+
    public String deleteNews(@NotBlank String id){
         return newsCommandService.deleteNews(id);
    }
