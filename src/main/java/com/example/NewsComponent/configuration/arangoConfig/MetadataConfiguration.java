@@ -1,4 +1,4 @@
-package com.example.NewsComponent.configuration;
+package com.example.NewsComponent.configuration.arangoConfig;
 
 import com.arangodb.ArangoCollection;
 import com.arangodb.ArangoDatabase;

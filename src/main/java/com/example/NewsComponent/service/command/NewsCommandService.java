@@ -1,4 +1,4 @@
-package com.example.NewsComponent.service.commandService;
+package com.example.NewsComponent.service.command;
 
 import com.example.NewsComponent.domain.News;
 import com.example.NewsComponent.domain.edge.NewsHasHashTag;
@@ -17,13 +17,10 @@ import com.example.NewsComponent.repository.edge.NewsIsForLocationRepository;
 import com.example.NewsComponent.service.external.NotificationService;
 import com.example.NewsComponent.service.transaction.Action;
 import com.example.NewsComponent.service.transaction.TransactionalWrapper;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.example.NewsComponent.metadata.EdgeName.*;
 import static com.example.NewsComponent.metadata.VertexName.NEWS;
@@ -98,10 +95,10 @@ public class NewsCommandService {
 
         Set<String> locationIds = new HashSet<>();
         locationIds.addAll(countryIds);
-        locationIds.addAll(stateIds);
-        locationIds.addAll(districtIds);
-        locationIds.addAll(tehsilIds);
-        locationIds.addAll(villageIds);
+        locationIds.addAll(Optional.ofNullable(stateIds).orElse(new HashSet<>()));
+        locationIds.addAll(Optional.ofNullable(districtIds).orElse(new HashSet<>()));
+        locationIds.addAll(Optional.ofNullable(tehsilIds).orElse(new HashSet<>()));
+        locationIds.addAll(Optional.ofNullable(villageIds).orElse(new HashSet<>()));
         return locationIds;
     }
 
@@ -163,19 +160,11 @@ public class NewsCommandService {
 
     public NewsResponse publishAndNotify(String newsId) {
         News newsById = newsRepository.getNewsById(newsId);
-        String en = newsById.getTitle().getEn();
-        String pb = newsById.getTitle().getPb();
 
         Location location = getPublishedLocationForNotify(newsById);
-        String language = "hn";
-        if (StringUtils.isNotBlank(en)) {
-            language = String.join(",", "en");
-        }
-        if (StringUtils.isNotBlank(pb)) {
-            language = String.join(",", "pb");
-        }
+        Set<String> languageCodes =  newsById.getTitle().keySet();
+        String language = String.join(",", languageCodes);
         location.setLang(language);
-
 
         Interests interests = new Interests();
         interests.setKeywordName(String.join(",", newsById.getInterestIds()));
@@ -186,7 +175,7 @@ public class NewsCommandService {
         messages.setContent(newsById.getTitle());
 
         NotificationRequest notificationRequest = getNotificationRequest(newsId, filter, messages);
-        //notificationService.sendNotification(notificationRequest);
+        //notificationService.sendNotification(notificationRequest); todo:do it
         return publishNews(newsId);
     }
 

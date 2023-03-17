@@ -1,11 +1,13 @@
 package com.example.NewsComponent.resolvers.newsQueryResolver;
 
+import com.example.NewsComponent.dto.request.NewsFilter;
+import com.example.NewsComponent.dto.request.PaginationFilter;
 import com.example.NewsComponent.dto.response.NewsResponse;
+import com.example.NewsComponent.dto.response.Pagination;
 import com.example.NewsComponent.enums.NewsStatus;
-import com.example.NewsComponent.service.queryService.NewsQueryService;
+import com.example.NewsComponent.service.query.NewsQueryService;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import org.springframework.stereotype.Service;
-import java.util.List;
 
 @Service
 public class NewsQueryResolver implements GraphQLQueryResolver {
@@ -15,7 +17,7 @@ public class NewsQueryResolver implements GraphQLQueryResolver {
         this.newsQueryService = newsQueryService;
     }
 
-    public List<NewsResponse> getAllNews(NewsStatus newsStatus){
-        return newsQueryService.getAllNews(newsStatus);
+    public Pagination<NewsResponse> getAllNews(NewsStatus newsStatus, PaginationFilter paginationFilter, NewsFilter newsFilter){
+        return newsQueryService.getAllNews(newsStatus, paginationFilter, newsFilter);
     }
 }

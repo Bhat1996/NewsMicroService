@@ -1,11 +1,12 @@
 package com.example.NewsComponent.dto.internal;
 
-import com.example.NewsComponent.domain.embedded.LanguageSupport;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Map;
 
 @Getter
 @Setter
 public class Messages {
-    private LanguageSupport content;
+    private Map<String, String> content;
 }

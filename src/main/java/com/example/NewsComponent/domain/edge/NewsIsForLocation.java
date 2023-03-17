@@ -8,7 +8,9 @@ import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 
-@Edge("newsIsForLocation")
+import static com.example.NewsComponent.metadata.EdgeName.NEWS_IS_FOR_LOCATION;
+
+@Edge(NEWS_IS_FOR_LOCATION)
 @Getter
 @Setter
 public class NewsIsForLocation {

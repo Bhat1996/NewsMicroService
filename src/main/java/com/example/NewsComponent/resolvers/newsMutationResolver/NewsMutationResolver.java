@@ -2,15 +2,14 @@ package com.example.NewsComponent.resolvers.newsMutationResolver;
 
 import com.example.NewsComponent.dto.request.NewsRequest;
 import com.example.NewsComponent.dto.response.NewsResponse;
-import com.example.NewsComponent.service.commandService.NewsCommandService;
+import com.example.NewsComponent.service.command.NewsCommandService;
+import com.example.NewsComponent.validations.LanguageValidator;
 import graphql.kickstart.tools.GraphQLMutationResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import javax.servlet.http.Part;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import java.util.List;
 
 @Service
 @Validated
@@ -18,11 +17,14 @@ public class NewsMutationResolver implements GraphQLMutationResolver {
 
     private  final NewsCommandService newsCommandService;
 
-    public NewsMutationResolver(NewsCommandService newsCommandService) {
+    private  final LanguageValidator languageValidator;
+    public NewsMutationResolver(NewsCommandService newsCommandService, LanguageValidator languageValidator) {
         this.newsCommandService = newsCommandService;
+        this.languageValidator = languageValidator;
     }
 
     public NewsResponse savedNews(@Valid NewsRequest newsRequest){
+        languageValidator.languageValidateChecker(newsRequest);
         return newsCommandService.saveNewsResponse(newsRequest);
     }
 
@@ -38,7 +40,8 @@ public class NewsMutationResolver implements GraphQLMutationResolver {
         return newsCommandService.deleteNews(id);
    }
 
-   public String updateNews(@Valid NewsRequest newsRequest){
+   public String updateNews(@Valid NewsRequest newsRequest) {
+       languageValidator.languageValidateChecker(newsRequest);
         return newsCommandService.updateNews(newsRequest);
    }
 }

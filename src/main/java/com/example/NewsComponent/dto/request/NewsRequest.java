@@ -1,18 +1,16 @@
 package com.example.NewsComponent.dto.request;
 
-import com.example.NewsComponent.domain.embedded.LanguageSupport;
 import com.example.NewsComponent.enums.NewsStatus;
 import com.example.NewsComponent.enums.SortingOrder;
 import com.example.NewsComponent.enums.Status;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -21,11 +19,11 @@ public class NewsRequest {
 
     private String id;
     @NotNull
-    private LanguageSupport title;
-    private LanguageSupport description;
-    private LanguageSupport slugTitle;
+    private Map<String,String> title;
+    private Map<String,String>  description;
+    private Map<String,String>  slugTitle;
     private List<String> hashTagIds;
-    private boolean publishAndNotify = false;
+    @NotNull
     private NewsStatus newsStatus;
     private Status status;
     private SortingOrder sortingOrder;

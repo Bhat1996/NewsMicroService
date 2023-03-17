@@ -3,7 +3,7 @@ package com.example.NewsComponent;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.springframework.annotation.EnableArangoRepositories;
 import com.arangodb.springframework.core.ArangoOperations;
-import com.example.NewsComponent.configuration.MetadataConfiguration;
+import com.example.NewsComponent.configuration.arangoConfig.MetadataConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

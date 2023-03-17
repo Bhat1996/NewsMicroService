@@ -29,6 +29,8 @@ public class PageInfo {
         this.totalCounts = totalCounts;
         this.limit = limit;
         this.order = order;
+
+        setPaginationDetails();
     }
 
     public static PageInfo ofInputs(final Integer offset, final Integer limit, final SortingOrder order)

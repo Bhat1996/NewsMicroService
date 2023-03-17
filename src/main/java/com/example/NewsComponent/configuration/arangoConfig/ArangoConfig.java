@@ -1,4 +1,4 @@
-package com.example.NewsComponent.configuration;
+package com.example.NewsComponent.configuration.arangoConfig;
 
 import com.arangodb.ArangoDB;
 import com.arangodb.springframework.annotation.EnableArangoRepositories;

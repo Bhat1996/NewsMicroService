@@ -12,14 +12,30 @@ type Mutation{
 }
 
 type  Query{
-    getAllNews(newsStatus:NewsStatus):[NewsResponse]
+    getAllNews(newsStatus:NewsStatus, paginationFilter: PaginationFilter, newsFilter:NewsFilter ):PaginationResponse
+}
+
+input NewsFilter{
+    keyword:String
+    countryIds:[String]
+    stateIds:[String]
+    districtIds:[String]
+    tehsilIds:[String]
+    villageIds:[String]
+    status:Status
+     dateFilter:DateFilter
+}
+
+input DateFilter {
+    startDate:String
+    endDate:String
 }
 
 input NewsRequest{
     id:String
-    title: LanguageSupport
-    description:LanguageSupport
-    slugTitle:LanguageSupport
+    title: Object
+    description:Object
+    slugTitle:Object
     newsStatus : NewsStatus
     hashTagIds:[String]
     remarks:String
@@ -27,19 +43,23 @@ input NewsRequest{
     newsSource: String
     sourceLink:String
     countryIds:[String]
-    publishAndNotify:Boolean
     stateIds:[String]
     districtIds:[String]
     tehsilIds:[String]
     villageIds:[String]
 }
 
+type PaginationResponse{
+    pageInfo : PageInfo
+    list: [NewsResponse]
+}
+
 type NewsResponse{
     id:String
     arangoId:String
-    title: LanguageSupportResponse
-    description:LanguageSupportResponse
-    slugTitle:LanguageSupportResponse
+    title: Object
+    description:Object
+    slugTitle:Object
     newsStatus: NewsStatus
     hashTagIds:[String]
     remarks:String
@@ -47,44 +67,33 @@ type NewsResponse{
     newsSource: String
     sourceLink:String
     countryIds:[String]
-    publishAndNotify:Boolean
     stateIds:[String]
     districtIds:[String]
     tehsilIds:[String]
     villageIds:[String]
 }
-input LanguageSupport{
-    en:String
-    hn: String!
-    pb: String
-}
 
-type LanguageSupportResponse{
-    en:String
-    hn: String
-    pb: String
-}
 
-#input PaginationFilter{
-#    offset : Int = 0
-#    limit : Int = 10
-#    order : SortingOrder = ASC
-#}
+input PaginationFilter{
+    offset : Int = 0
+    limit : Int = 10
+    order : SortingOrder = ASC
+}
 #
-#type PageInfo{
-#    offset : Int
-#    hasNext : Boolean
-#    hasPrevious : Boolean
-##    totalCounts : Long
-#    limit : Int
-#    pageNumber : Int
-#    order : SortingOrder
-#}
+type PageInfo{
+    offset : Int
+    hasNext : Boolean
+    hasPrevious : Boolean
+    totalCounts : Long
+    limit : Int
+    pageNumber : Int
+    order : SortingOrder
+}
 #
-#enum SortingOrder{
-#    ASC,
-#    DESC
-#}
+enum SortingOrder{
+    ASC,
+    DESC
+}
 
 enum NewsStatus{
     PUBLISHED,
@@ -97,3 +106,7 @@ enum Status{
     BOTH,
     DELETED
 }
+
+scalar Object
+#scalar JSON
+scalar Long

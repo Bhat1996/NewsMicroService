@@ -2,7 +2,6 @@ package com.example.NewsComponent.domain;
 
 import com.arangodb.springframework.annotation.ArangoId;
 import com.arangodb.springframework.annotation.Document;
-import com.example.NewsComponent.domain.embedded.LanguageSupport;
 import com.example.NewsComponent.enums.NewsStatus;
 import com.example.NewsComponent.enums.SortingOrder;
 import com.example.NewsComponent.enums.Status;
@@ -14,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -25,25 +25,18 @@ public class News {
     String id;
     @ArangoId
     String arangoId;
-    @NotNull
-    private LanguageSupport title;
-    private LanguageSupport description;
-    private LanguageSupport slugTitle;
+    private Map<String,String> title;
+    private Map<String,String> description;
+    private Map<String,String>  slugTitle;
     private List<String> hashTagIds;
-    private boolean publishAndNotify = false;
     private NewsStatus newsStatus;
     private SortingOrder sortingOrder;
     private Status status;
-    @NotBlank
     private String remarks;
-    @NotNull
     private List<String> interestIds;
-    @NotBlank
     private String newsSource;
-    @NotBlank
     private String sourceLink;
     private LocalDateTime newsPublishDate;
-    @NotNull
     private Set<String> countryIds;
     private Set<String> stateIds;
     private Set<String> districtIds;
