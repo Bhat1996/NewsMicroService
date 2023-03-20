@@ -13,7 +13,6 @@ public class ScalarConfiguration {
     public GraphQLScalarType longScalar() {
         return ExtendedScalars.GraphQLLong;
     }
-//
 //    @Bean
 //    public GraphQLScalarType dateScalar(){
 //        return ExtendedScalars.Date;

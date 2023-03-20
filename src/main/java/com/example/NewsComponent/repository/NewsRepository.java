@@ -13,8 +13,10 @@ import com.example.NewsComponent.domain.News;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public class NewsRepository {
@@ -67,6 +69,43 @@ public class NewsRepository {
         VPackSlice aNew = updatedNews.getNew();
         return arangoConverter.read(News.class,aNew);
 
+    }
+    public static String getLanguageFilter(String value){
+        String query =  "filter doc.title.en == ${value}";
+        Map<String,String> template = Map.of("value",value);
+        StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
+        return stringSubstitutor.replace(query);
+    }
+
+    public static String getCountryIds(Set<String> countryIds){
+        String query="filter doc.countryIds== ${value}";
+        Map<String,String> template = Map.of("value", countryIds.toString());
+        StringSubstitutor stringSubstitutor=new StringSubstitutor(template);
+        return stringSubstitutor.replace(query);
+    }
+    public static String getStateIds(Set<String> stateIds){
+        String query="filter doc.countryIds== ${value}";
+        Map<String,String> template = Map.of("value", stateIds.toString());
+        StringSubstitutor stringSubstitutor=new StringSubstitutor(template);
+        return stringSubstitutor.replace(query);
+    }
+    public static String getDistrictIds(Set<String> districtIds){
+        String query="filter doc.countryIds== ${value}";
+        Map<String,String> template = Map.of("value", districtIds.toString());
+        StringSubstitutor stringSubstitutor=new StringSubstitutor(template);
+        return stringSubstitutor.replace(query);
+    }
+    public static String getTehsilIds(Set<String> tehsilIds){
+        String query="filter doc.countryIds== ${value}";
+        Map<String,String> template = Map.of("value", tehsilIds.toString());
+        StringSubstitutor stringSubstitutor=new StringSubstitutor(template);
+        return stringSubstitutor.replace(query);
+    }
+    public static String getVillageIds(Set<String> villageIds){
+        String query="filter doc.countryIds== ${value}";
+        Map<String,String> template = Map.of("value", villageIds.toString());
+        StringSubstitutor stringSubstitutor=new StringSubstitutor(template);
+        return stringSubstitutor.replace(query);
     }
 
 }

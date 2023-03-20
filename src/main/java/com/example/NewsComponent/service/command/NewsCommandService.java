@@ -175,7 +175,8 @@ public class NewsCommandService {
         messages.setContent(newsById.getTitle());
 
         NotificationRequest notificationRequest = getNotificationRequest(newsId, filter, messages);
-        //notificationService.sendNotification(notificationRequest); todo:do it
+        // TODO: 20-03-2023 it
+        //notificationService.sendNotification(notificationRequest);
         return publishNews(newsId);
     }
 
