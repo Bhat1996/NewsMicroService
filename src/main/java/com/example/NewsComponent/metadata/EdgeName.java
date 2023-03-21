@@ -5,12 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EdgeName {
-//    public static final String IS_STATE_OF_COUNTRY = "isStateOfCountry";
-//
-//    public static final String IS_DISTRICT_OF_STATE = "isDistrictOfState";
-//
-//    public static final String IS_TEHSIL_OF_DISTRICT = "isTehsilOfDistrict";
-//
+
   public static final String NEWS_IS_FOR_LOCATION = "newsIsForLocation";
 
     public static final String NEWS_HAS_INTEREST="newsHasInterest";

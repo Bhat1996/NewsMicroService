@@ -10,10 +10,13 @@ import com.arangodb.springframework.core.ArangoOperations;
 import com.arangodb.springframework.core.convert.ArangoConverter;
 import com.arangodb.velocypack.VPackSlice;
 import com.example.NewsComponent.domain.News;
+import com.example.NewsComponent.dto.request.DateFilter;
+import com.example.NewsComponent.enums.Status;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -23,6 +26,7 @@ public class NewsRepository {
 
     private final ArangoOperations arangoOperations;
     private final ArangoConverter arangoConverter;
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public NewsRepository(ArangoOperations arangoOperations,
                           ArangoConverter arangoConverter) {
@@ -64,48 +68,73 @@ public class NewsRepository {
     public News updateNews(ArangoDatabase arangoDatabase, String transactionId, News news) {
         DocumentUpdateEntity<VPackSlice> updatedNews = arangoDatabase.collection("news")
                 .updateDocument(news.getId(), arangoConverter.write(news),
-                     new DocumentUpdateOptions()
-                        .streamTransactionId(transactionId).returnNew(true));
+                        new DocumentUpdateOptions()
+                                .streamTransactionId(transactionId).returnNew(true));
         VPackSlice aNew = updatedNews.getNew();
-        return arangoConverter.read(News.class,aNew);
+        return arangoConverter.read(News.class, aNew);
 
     }
-    public static String getLanguageFilter(String value){
-        String query =  "filter doc.title.en == ${value}";
-        Map<String,String> template = Map.of("value",value);
+
+    public static String getLanguageFilter(String value) {
+        String query = "filter news.title.en == ${value}";
+        Map<String, String> template = Map.of("value", value);
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);
     }
 
-    public static String getCountryIds(Set<String> countryIds){
-        String query="filter doc.countryIds== ${value}";
-        Map<String,String> template = Map.of("value", countryIds.toString());
-        StringSubstitutor stringSubstitutor=new StringSubstitutor(template);
+    @SneakyThrows
+    public static String getCountryIds(Set<String> countryIds) {
+        String query = "filter news.countryIds== ${value}";
+        Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(countryIds));
+        StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);
     }
-    public static String getStateIds(Set<String> stateIds){
-        String query="filter doc.countryIds== ${value}";
-        Map<String,String> template = Map.of("value", stateIds.toString());
-        StringSubstitutor stringSubstitutor=new StringSubstitutor(template);
+    @SneakyThrows
+    public static String getStateIds(Set<String> stateIds) {
+        String query = "filter news.countryIds== ${value}";
+        Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(stateIds));
+        StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);
     }
-    public static String getDistrictIds(Set<String> districtIds){
-        String query="filter doc.countryIds== ${value}";
-        Map<String,String> template = Map.of("value", districtIds.toString());
-        StringSubstitutor stringSubstitutor=new StringSubstitutor(template);
+    @SneakyThrows
+    public static String getDistrictIds(Set<String> districtIds) {
+        String query = "filter news.countryIds== ${value}";
+        Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(districtIds));
+        StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);
     }
-    public static String getTehsilIds(Set<String> tehsilIds){
-        String query="filter doc.countryIds== ${value}";
-        Map<String,String> template = Map.of("value", tehsilIds.toString());
-        StringSubstitutor stringSubstitutor=new StringSubstitutor(template);
+    @SneakyThrows
+    public static String getTehsilIds(Set<String> tehsilIds) {
+        String query = "filter news.countryIds== ${value}";
+        Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(tehsilIds));
+        StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);
     }
-    public static String getVillageIds(Set<String> villageIds){
-        String query="filter doc.countryIds== ${value}";
-        Map<String,String> template = Map.of("value", villageIds.toString());
-        StringSubstitutor stringSubstitutor=new StringSubstitutor(template);
+    @SneakyThrows
+    public static String getVillageIds(Set<String> villageIds) {
+        String query = "filter news.countryIds== ${value}";
+        Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(villageIds) );
+        StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);
+    }
+
+    public static String getStatusFilter(Status status) {
+        String query = "filter news.status== '${status}'";
+        Map<String, String> template = Map.of("status", status.toString());
+        StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
+        return stringSubstitutor.replace(query);
+    }
+
+    public static String getDateFilter(DateFilter dateFilter) {
+        if (dateFilter.getStartDate() != null && dateFilter.getEndDate() != null) {
+            String query = "filter news.newsPublishDate >= ${startDate} And news.newsPublishDate<= ${endDate}";
+            Map<String, String> template = Map.of("startDate", dateFilter.getStartDate(),
+                    "endDate", dateFilter.getEndDate());
+            StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
+            return stringSubstitutor.replace(query);
+        } else {
+            return "";
+        }
     }
 
 }

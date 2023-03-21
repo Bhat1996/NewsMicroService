@@ -39,25 +39,38 @@ public class NewsQueryService {
 
     }
 
-    // TODO: 17-03-2023 add method for newsFilter
+    // TODO: 17-03-2023 add  for newsFilter
     public Pagination<NewsResponse> getAllNews(NewsStatus newsStatus,
                                                PaginationFilter paginationFilter,
                                                NewsFilter newsFilter) {
 
         String query = """
                 LET list = (
-                    FOR doc IN ${news}
-                    FILTER doc.newsStatus == '${newsStatus}'
+                    FOR news IN ${news}
+                    FILTER news.newsStatus == '${newsStatus}'
                     ${languageFilter}
                     ${countryIds}
-                    
-                    SORT doc.newsPublishDate ${order}
+                    ${stateIds}
+                    ${districtIds}
+                    ${tehsilIds}
+                    ${villageIds}
+                    ${status}
+                    ${dateFilter}
+                    SORT news.newsPublishDate ${order}
                     LIMIT ${skip}, ${limit}
-                    RETURN doc
+                    RETURN news
                 )
                 LET total = (
-                    FOR doc IN news
-                    FILTER doc.newsStatus == '${newsStatus}'
+                    FOR news IN news
+                    FILTER news.newsStatus == '${newsStatus}'
+                    ${languageFilter}
+                    ${countryIds}
+                    ${stateIds}
+                    ${districtIds}
+                    ${tehsilIds}
+                    ${villageIds}
+                    ${status}
+                    ${dateFilter}
                     COLLECT WITH COUNT INTO size
                     RETURN size
                 )
@@ -96,16 +109,28 @@ public class NewsQueryService {
             queryParams.put("districtIds", "");
         }
 
-        if (newsFilter.getTehsilIds()!=null){
-            queryParams.put("tehsilIds",getTehsilIds(newsFilter.getTehsilIds()));
-        }else {
-            queryParams.put("tehsilIds","");
+        if (newsFilter.getTehsilIds() != null) {
+            queryParams.put("tehsilIds", getTehsilIds(newsFilter.getTehsilIds()));
+        } else {
+            queryParams.put("tehsilIds", "");
         }
 
-        if (newsFilter.getVillageIds()!=null){
-            queryParams.put("villageIds",getVillageIds(newsFilter.getVillageIds()));
+        if (newsFilter.getVillageIds() != null) {
+            queryParams.put("villageIds", getVillageIds(newsFilter.getVillageIds()));
+        } else {
+            queryParams.put("villageIds", "");
+        }
+
+        if(newsFilter.getStatus() !=null){
+            queryParams.put("status",getStatusFilter(newsFilter.getStatus()));
         }else {
-            queryParams.put("stateIds","");
+            queryParams.put("status","");
+        }
+
+        if (newsFilter.getDateFilter() !=null){
+            queryParams.put("dateFilter",getDateFilter(newsFilter.getDateFilter()));
+        }else {
+            queryParams.put("dateFilter", "");
         }
 
         queryParams.put("order", paginationFilter.getOrder().toString());

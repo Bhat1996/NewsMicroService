@@ -34,6 +34,7 @@ public class NewsComponentApplication {
 		MetadataConfiguration metadataConfiguration = new MetadataConfiguration(db);
 		metadataConfiguration.createVertexCollections();
 		metadataConfiguration.createEdgeCollections();
+		metadataConfiguration.newsSearchView();
 	}
 
 }
