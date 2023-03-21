@@ -69,7 +69,8 @@ public class NewsRepository {
     public Pagination<NewsResponse> getAllNews(NewsFilter newsFilter,
                                                PaginationFilter paginationFilter, NewsStatus newsStatus){
 
-        String finalQuery = newsQueryGenerator.getAllNews(newsFilter, paginationFilter, newsStatus);
+        String finalQuery = newsQueryGenerator.getQuery(newsFilter, paginationFilter, newsStatus);
+        System.out.println(finalQuery);
         ArangoCursor<PaginationResponse> cursor =
                 arangoOperations.query(finalQuery, PaginationResponse.class);
         try (cursor) {
@@ -85,6 +86,7 @@ public class NewsRepository {
                         newsList.stream().map(newsRequestResponseMapper::getNewsResponse).toList();
                 return new Pagination<>(responseList, pageInfo);
             } else {
+                // TODO: 21-03-2023 give proper exception
                 throw new RuntimeException("No data found");
             }
         } catch (IOException ioException) {

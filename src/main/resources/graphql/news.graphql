@@ -16,14 +16,14 @@ type  Query{
 }
 
 input NewsFilter{
-    keyword:String
+    searchIt:String
     countryIds:[String]
     stateIds:[String]
     districtIds:[String]
     tehsilIds:[String]
     villageIds:[String]
     status:Status
-     dateFilter:DateFilter
+    dateFilter:DateFilter
 }
 
 input DateFilter {

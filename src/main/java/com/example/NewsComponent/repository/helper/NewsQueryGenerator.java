@@ -1,5 +1,8 @@
 package com.example.NewsComponent.repository.helper;
 
+import com.arangodb.ArangoCursor;
+import com.arangodb.springframework.core.ArangoOperations;
+import com.example.NewsComponent.dto.internal.SearchTokenHelper;
 import com.example.NewsComponent.dto.request.DateFilter;
 import com.example.NewsComponent.dto.request.NewsFilter;
 import com.example.NewsComponent.dto.request.PaginationFilter;
@@ -9,25 +12,37 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static com.example.NewsComponent.metadata.VertexName.NEWS;
+import static com.example.NewsComponent.metadata.ViewName.NEWS_SEARCH;
+import static com.example.NewsComponent.utils.Not.not;
 
 @Service
 public class NewsQueryGenerator {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public String getAllNews(NewsFilter newsFilter, PaginationFilter paginationFilter, NewsStatus newsStatus) {
-// TODO: 21-03-2023 add search filter
+    private final ArangoOperations arangoOperations;
+
+    public NewsQueryGenerator(ArangoOperations arangoOperations) {
+        this.arangoOperations = arangoOperations;
+    }
+
+
+    public String getQuery(NewsFilter newsFilter, PaginationFilter paginationFilter, NewsStatus newsStatus) {
         String query = """
+                ${uniqueSortedListBasedOnScore}
+                FILTER doc.newsStatus == '${newsStatus}'
                 LET list = (
-                    FOR news IN ${news}
-                    FILTER news.newsStatus == '${newsStatus}'
+                    
                     ${languageFilter}
                     ${countryIds}
                     ${stateIds}
@@ -36,13 +51,12 @@ public class NewsQueryGenerator {
                     ${villageIds}
                     ${status}
                     ${dateFilter}
-                    SORT news.newsPublishDate ${order}
+                    SORT doc.newsPublishDate ${order}
                     LIMIT ${skip}, ${limit}
-                    RETURN news
+                    RETURN doc
                 )
                 LET total = (
-                    FOR news IN news
-                    FILTER news.newsStatus == '${newsStatus}'
+                    
                     ${languageFilter}
                     ${countryIds}
                     ${stateIds}
@@ -64,6 +78,7 @@ public class NewsQueryGenerator {
 
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("news", NEWS);
+        queryParams.put("uniqueSortedListBasedOnScore", getUniqueSortedListBasedOnScore(newsFilter.getSearchIt()));
 
         if (StringUtils.isNotBlank(newsFilter.getLanguage())) {
             queryParams.put("languageFilter", getLanguageFilter(newsFilter.getLanguage()));
@@ -101,15 +116,15 @@ public class NewsQueryGenerator {
             queryParams.put("villageIds", "");
         }
 
-        if(newsFilter.getStatus() !=null){
-            queryParams.put("status",getStatusFilter(newsFilter.getStatus()));
-        }else {
-            queryParams.put("status","");
+        if (newsFilter.getStatus() != null) {
+            queryParams.put("status", getStatusFilter(newsFilter.getStatus()));
+        } else {
+            queryParams.put("status", "");
         }
 
-        if (newsFilter.getDateFilter() !=null){
-            queryParams.put("dateFilter",getDateFilter(newsFilter.getDateFilter()));
-        }else {
+        if (newsFilter.getDateFilter() != null) {
+            queryParams.put("dateFilter", getDateFilter(newsFilter.getDateFilter()));
+        } else {
             queryParams.put("dateFilter", "");
         }
 
@@ -123,7 +138,7 @@ public class NewsQueryGenerator {
 
 
     public static String getLanguageFilter(String value) {
-        String query = "filter news.title.en == ${value}";
+        String query = "filter doc.title.en == '${value}'";
         Map<String, String> template = Map.of("value", value);
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);
@@ -131,42 +146,46 @@ public class NewsQueryGenerator {
 
     @SneakyThrows
     public static String getCountryIds(Set<String> countryIds) {
-        String query = "filter news.countryIds== ${value}";
+        String query = "filter doc.countryIds any in ${value}";
         Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(countryIds));
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);
     }
+
     @SneakyThrows
     public static String getStateIds(Set<String> stateIds) {
-        String query = "filter news.countryIds== ${value}";
+        String query = "filter doc.stateIds any in ${value}";
         Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(stateIds));
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);
     }
+
     @SneakyThrows
     public static String getDistrictIds(Set<String> districtIds) {
-        String query = "filter news.countryIds== ${value}";
+        String query = "filter doc.districtIds any in ${value}";
         Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(districtIds));
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);
     }
+
     @SneakyThrows
     public static String getTehsilIds(Set<String> tehsilIds) {
-        String query = "filter news.countryIds== ${value}";
+        String query = "filter doc.tehsilIds any in ${value}";
         Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(tehsilIds));
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);
     }
+
     @SneakyThrows
     public static String getVillageIds(Set<String> villageIds) {
-        String query = "filter news.countryIds== ${value}";
-        Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(villageIds) );
+        String query = "filter doc.villageIds any in ${value}";
+        Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(villageIds));
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);
     }
 
     public static String getStatusFilter(Status status) {
-        String query = "filter news.status== '${status}'";
+        String query = "filter doc.status == '${status}'";
         Map<String, String> template = Map.of("status", status.toString());
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);
@@ -174,7 +193,7 @@ public class NewsQueryGenerator {
 
     public static String getDateFilter(DateFilter dateFilter) {
         if (dateFilter.getStartDate() != null && dateFilter.getEndDate() != null) {
-            String query = "filter news.newsPublishDate >= ${startDate} And news.newsPublishDate<= ${endDate}";
+            String query = "filter doc.newsPublishDate >= '${startDate}' And doc.newsPublishDate<= '${endDate}'";
             Map<String, String> template = Map.of("startDate", dateFilter.getStartDate(),
                     "endDate", dateFilter.getEndDate());
             StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
@@ -183,4 +202,138 @@ public class NewsQueryGenerator {
             return "";
         }
     }
+
+    public String getUniqueSortedListBasedOnScore(String searchIt) {
+        if (StringUtils.isBlank(searchIt)) {
+            String template = "for doc in ${viewName}";
+            Map<String, String> params = Map.of("viewName", NEWS_SEARCH);
+            return new StringSubstitutor(params).replace(template);
+        }
+        SearchTokenHelper tokenHelper = new SearchTokenHelper(searchIt);
+
+        String template = """
+                                
+                let searchedToken = tokens('${searchIt}', '${analyzer}')
+                ${anyWordMatchingTokens}
+                                
+                for doc in ${viewName}
+                search analyzer(
+                    boost(${newsTitlePhraseFilters} or ${newsDescriptionPhraseFilters}, 4)
+                    or
+                    boost(${newsTitleAllTokenMatchFilters} or ${newsDescriptionAllTokenMatchFilters}, 3)
+                    ${anyWordMatchingTokenFilter}
+                    ,
+                    '${analyzer}'
+                )
+                filter doc.status != 'DELETED'
+                let score = BM25(doc)
+                sort score DESC
+                    
+                """;
+
+        Map<String, String> params = Map.of("searchIt", searchIt,
+                "analyzer", "text_en",
+                "viewName", NEWS_SEARCH,
+                "anyWordMatchingTokens", getAnyWordMatchingTokens(tokenHelper),
+                "newsTitlePhraseFilters", getNewsTitlePhraseFilters(),
+                "newsDescriptionPhraseFilters", getNewsDescriptionPhraseFilters(),
+                "newsTitleAllTokenMatchFilters", getNewsTitleAllTokenMatchFilters()
+                , "newsDescriptionAllTokenMatchFilters", getNewsDescriptionAllTokenMatchFilters(),
+                "anyWordMatchingTokenFilter", getAnyWordMatchingTokenFilters(tokenHelper)
+        );
+
+
+        return new StringSubstitutor(params).replace(template);
+
+
+    }
+
+    private String getNewsTitleAllTokenMatchFilters() {
+        List<String> titleAllTokenMatchFiltersList = getActiveLanguageCode().stream()
+                .map(languageCode -> "searchedToken all in doc.title." + languageCode)
+                .toList();
+        return String.join(" or ", titleAllTokenMatchFiltersList);
+    }
+
+    private String getNewsDescriptionAllTokenMatchFilters() {
+        List<String> descriptionAllTokenMatchFiltersList = getActiveLanguageCode().stream()
+                .map(languageCode -> "searchedToken all in doc.description." + languageCode)
+                .toList();
+        return String.join(" or ", descriptionAllTokenMatchFiltersList);
+    }
+
+    private String getNewsTitlePhraseFilters() {
+        List<String> titlePhraseFilterList = getActiveLanguageCode().stream()
+                .map(languageCode -> "phrase(doc.title." + languageCode + ", searchedToken)")
+                .toList();
+        return String.join(" or ", titlePhraseFilterList);
+    }
+
+    private String getNewsDescriptionPhraseFilters() {
+        List<String> descriptionPhraseFilterList = getActiveLanguageCode().stream()
+                .map(languageCode -> "phrase(doc.description." + languageCode + ", searchedToken)")
+                .toList();
+        return String.join(" or ", descriptionPhraseFilterList);
+    }
+
+    private String getAnyWordMatchingTokens(final SearchTokenHelper tokenHelper) {
+        if (not(tokenHelper.isThereAnySearchableTokenWord())) {
+            return "";
+        }
+        String template = "let anyWordMatchingToken = tokens('${onlySearchableTokenWord}', '${analyzer}')";
+
+        Map<String, String> templateFiller = new HashMap<>();
+        String onlySearchableTokenWord = tokenHelper.getOnlySearchableTokenWord();
+        templateFiller.put("onlySearchableTokenWord", onlySearchableTokenWord);
+        templateFiller.put("analyzer", "text_en");
+
+        StringSubstitutor substitutor = new StringSubstitutor(templateFiller);
+        return substitutor.replace(template);
+    }
+
+    private String getAnyWordMatchingTokenFilters(final SearchTokenHelper tokenHelper) {
+        if (not(tokenHelper.isThereAnySearchableTokenWord())) {
+            return "";
+        }
+
+        List<String> activeLanguageCodes = getActiveLanguageCode();
+        String template = """
+                or
+                    boost(${titleAnyTokenMatchFilters} or ${descriptionAnyTokenMatchFilters}, 2)
+                """;
+        Map<String, String> templateFiller = new HashMap<>();
+
+        List<String> titleAnyTokenMatchFiltersList = activeLanguageCodes.stream()
+                .map(languageCode -> "doc.title." + languageCode + " in anyWordMatchingToken")
+                .toList();
+        String titleAnyTokenMatchFilters = String.join(" or ", titleAnyTokenMatchFiltersList);
+
+        List<String> descriptionAnyTokenMatchFiltersList = activeLanguageCodes.stream()
+                .map(languageCode -> "doc.description." + languageCode + " in anyWordMatchingToken")
+                .toList();
+        String descriptionAnyTokenMatchFilters = String.join(" or ", descriptionAnyTokenMatchFiltersList);
+
+        templateFiller.put("titleAnyTokenMatchFilters", titleAnyTokenMatchFilters);
+        templateFiller.put("descriptionAnyTokenMatchFilters", descriptionAnyTokenMatchFilters);
+
+        StringSubstitutor substitutor = new StringSubstitutor(templateFiller);
+        return substitutor.replace(template);
+    }
+
+    private List<String> getActiveLanguageCode() {
+        String query = """
+                for language in languages
+                filter language.status== "ACTIVE"
+                return language.code
+                """;
+        ArangoCursor<String> cursor = arangoOperations.query(query, String.class);
+        try (cursor) {
+            return cursor.asListRemaining();
+        } catch (IOException ioException) {
+            throw new RuntimeException(ioException);
+        }
+
+    }
+
 }
+
