@@ -10,28 +10,41 @@ import com.arangodb.springframework.core.ArangoOperations;
 import com.arangodb.springframework.core.convert.ArangoConverter;
 import com.arangodb.velocypack.VPackSlice;
 import com.example.NewsComponent.domain.News;
-import com.example.NewsComponent.dto.request.DateFilter;
-import com.example.NewsComponent.enums.Status;
+import com.example.NewsComponent.dto.request.NewsFilter;
+import com.example.NewsComponent.dto.request.PaginationFilter;
+import com.example.NewsComponent.dto.response.NewsResponse;
+import com.example.NewsComponent.dto.response.PageInfo;
+import com.example.NewsComponent.dto.response.Pagination;
+import com.example.NewsComponent.dto.response.PaginationResponse;
+import com.example.NewsComponent.enums.NewsStatus;
+import com.example.NewsComponent.mapper.NewsRequestResponseMapper;
+import com.example.NewsComponent.repository.helper.NewsQueryGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 public class NewsRepository {
 
     private final ArangoOperations arangoOperations;
     private final ArangoConverter arangoConverter;
+    private final NewsRequestResponseMapper newsRequestResponseMapper;
+    private final NewsQueryGenerator newsQueryGenerator;
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public NewsRepository(ArangoOperations arangoOperations,
-                          ArangoConverter arangoConverter) {
+                          ArangoConverter arangoConverter,
+                          NewsRequestResponseMapper newsRequestResponseMapper,
+                          NewsQueryGenerator newsQueryGenerator) {
         this.arangoOperations = arangoOperations;
         this.arangoConverter = arangoConverter;
+        this.newsRequestResponseMapper = newsRequestResponseMapper;
+        this.newsQueryGenerator = newsQueryGenerator;
     }
 
     public News getNewsById(String id) {
@@ -53,6 +66,31 @@ public class NewsRepository {
         }
     }
 
+    public Pagination<NewsResponse> getAllNews(NewsFilter newsFilter,
+                                               PaginationFilter paginationFilter, NewsStatus newsStatus){
+
+        String finalQuery = newsQueryGenerator.getAllNews(newsFilter, paginationFilter, newsStatus);
+        ArangoCursor<PaginationResponse> cursor =
+                arangoOperations.query(finalQuery, PaginationResponse.class);
+        try (cursor) {
+            Optional<PaginationResponse> first = cursor.stream().findFirst();
+            if (first.isPresent()) {
+                PaginationResponse paginationResponse = first.get();
+
+                Long total = paginationResponse.getTotal();
+                PageInfo pageInfo = PageInfo.ofResult(total, paginationFilter);
+
+                List<News> newsList = paginationResponse.getList();
+                List<NewsResponse> responseList =
+                        newsList.stream().map(newsRequestResponseMapper::getNewsResponse).toList();
+                return new Pagination<>(responseList, pageInfo);
+            } else {
+                throw new RuntimeException("No data found");
+            }
+        } catch (IOException ioException) {
+            throw new RuntimeException(ioException);
+        }
+    }
     public News saveNews(ArangoDatabase arangoDatabase, String transactionId, News news) {
 
         DocumentCreateEntity<VPackSlice> createEntity = arangoDatabase.collection("news")
@@ -75,66 +113,5 @@ public class NewsRepository {
 
     }
 
-    public static String getLanguageFilter(String value) {
-        String query = "filter news.title.en == ${value}";
-        Map<String, String> template = Map.of("value", value);
-        StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
-        return stringSubstitutor.replace(query);
-    }
-
-    @SneakyThrows
-    public static String getCountryIds(Set<String> countryIds) {
-        String query = "filter news.countryIds== ${value}";
-        Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(countryIds));
-        StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
-        return stringSubstitutor.replace(query);
-    }
-    @SneakyThrows
-    public static String getStateIds(Set<String> stateIds) {
-        String query = "filter news.countryIds== ${value}";
-        Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(stateIds));
-        StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
-        return stringSubstitutor.replace(query);
-    }
-    @SneakyThrows
-    public static String getDistrictIds(Set<String> districtIds) {
-        String query = "filter news.countryIds== ${value}";
-        Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(districtIds));
-        StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
-        return stringSubstitutor.replace(query);
-    }
-    @SneakyThrows
-    public static String getTehsilIds(Set<String> tehsilIds) {
-        String query = "filter news.countryIds== ${value}";
-        Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(tehsilIds));
-        StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
-        return stringSubstitutor.replace(query);
-    }
-    @SneakyThrows
-    public static String getVillageIds(Set<String> villageIds) {
-        String query = "filter news.countryIds== ${value}";
-        Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(villageIds) );
-        StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
-        return stringSubstitutor.replace(query);
-    }
-
-    public static String getStatusFilter(Status status) {
-        String query = "filter news.status== '${status}'";
-        Map<String, String> template = Map.of("status", status.toString());
-        StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
-        return stringSubstitutor.replace(query);
-    }
-
-    public static String getDateFilter(DateFilter dateFilter) {
-        if (dateFilter.getStartDate() != null && dateFilter.getEndDate() != null) {
-            String query = "filter news.newsPublishDate >= ${startDate} And news.newsPublishDate<= ${endDate}";
-            Map<String, String> template = Map.of("startDate", dateFilter.getStartDate(),
-                    "endDate", dateFilter.getEndDate());
-            StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
-            return stringSubstitutor.replace(query);
-        } else {
-            return "";
-        }
-    }
 
 }
