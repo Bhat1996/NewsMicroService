@@ -17,6 +17,7 @@ import com.example.NewsComponent.dto.response.PageInfo;
 import com.example.NewsComponent.dto.response.Pagination;
 import com.example.NewsComponent.dto.response.PaginationResponse;
 import com.example.NewsComponent.enums.NewsStatus;
+import com.example.NewsComponent.exceptions.ResourceNotFoundException;
 import com.example.NewsComponent.mapper.NewsRequestResponseMapper;
 import com.example.NewsComponent.repository.helper.NewsQueryGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -87,7 +88,7 @@ public class NewsRepository {
                 return new Pagination<>(responseList, pageInfo);
             } else {
                 // TODO: 21-03-2023 give proper exception
-                throw new RuntimeException("No data found");
+                throw new ResourceNotFoundException("No data found");
             }
         } catch (IOException ioException) {
             throw new RuntimeException(ioException);

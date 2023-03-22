@@ -1,4 +1,4 @@
-package com.example.NewsComponent.resolvers.newsQueryResolver;
+package com.example.NewsComponent.resolvers.QueryResolver;
 
 import com.example.NewsComponent.dto.request.NewsFilter;
 import com.example.NewsComponent.dto.request.PaginationFilter;
