@@ -1,4 +1,4 @@
-package com.example.NewsComponent.domain.vertex;
+package com.example.NewsComponent.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class FileType {
+public class FileInput {
     private List<LinkedHashMap<?, ?>> images;
     private List<LinkedHashMap<?, ?>> audios;
     private List<LinkedHashMap<?, ?>> videos;

@@ -32,5 +32,5 @@ public class File {
 
     private String fileKey;
 
-    private FileType fileType;
+    private String fileType;
 }

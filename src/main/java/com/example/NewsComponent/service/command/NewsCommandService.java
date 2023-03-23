@@ -14,6 +14,7 @@ import com.example.NewsComponent.repository.NewsRepository;
 import com.example.NewsComponent.repository.edge.NewsHasHashTagRepository;
 import com.example.NewsComponent.repository.edge.NewsHasInterestRepository;
 import com.example.NewsComponent.repository.edge.NewsIsForLocationRepository;
+import com.example.NewsComponent.repository.vertex.FileRepository;
 import com.example.NewsComponent.service.external.NotificationService;
 import com.example.NewsComponent.service.transaction.Action;
 import com.example.NewsComponent.service.transaction.TransactionalWrapper;
@@ -34,6 +35,7 @@ public class NewsCommandService {
     private final NotificationService notificationService;
     private final TransactionalWrapper transactionalWrapper;
     private final NewsIsForLocationRepository newsIsForLocationRepository;
+    private final FileRepository fileRepository;
 
     private final NewsRequestResponseMapper newsRequestResponseMapper;
 
@@ -43,13 +45,14 @@ public class NewsCommandService {
                               NotificationService notificationService,
                               TransactionalWrapper transactionalWrapper,
                               NewsIsForLocationRepository newsIsForLocationRepository,
-                              NewsRequestResponseMapper newsRequestResponseMapper) {
+                              FileRepository fileRepository, NewsRequestResponseMapper newsRequestResponseMapper) {
         this.newsRepository = newsRepository;
         this.newsHasInterestRepository = newsHasInterestRepository;
         this.newsHasHashTagRepository = newsHasHashTagRepository;
         this.notificationService = notificationService;
         this.transactionalWrapper = transactionalWrapper;
         this.newsIsForLocationRepository = newsIsForLocationRepository;
+        this.fileRepository = fileRepository;
 
         this.newsRequestResponseMapper = newsRequestResponseMapper;
     }

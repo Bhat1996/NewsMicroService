@@ -42,4 +42,5 @@ public class NewsRequest {
     private Set<String> districtIds;
     private Set<String> tehsilIds;
     private Set<String> villageIds;
+    private FileInput fileInput;
 }
