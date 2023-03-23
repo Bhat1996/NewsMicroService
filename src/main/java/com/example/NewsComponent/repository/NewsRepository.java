@@ -101,9 +101,9 @@ public class NewsRepository {
                         new DocumentCreateOptions()
                                 .streamTransactionId(transactionId)
                                 .returnNew(true));
-
-        VPackSlice aNew = createEntity.getNew();
-        return arangoConverter.read(News.class, aNew);
+// TODO: 22-03-2023 same replace
+       // VPackSlice aNew = createEntity.getNew();
+        return arangoConverter.read(News.class,createEntity.getNew() );
     }
 
     public News updateNews(ArangoDatabase arangoDatabase, String transactionId, News news) {
