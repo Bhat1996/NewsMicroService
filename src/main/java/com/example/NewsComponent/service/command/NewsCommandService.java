@@ -1,6 +1,7 @@
 package com.example.NewsComponent.service.command;
 
 import com.example.NewsComponent.domain.News;
+import com.example.NewsComponent.domain.edge.NewsHasFile;
 import com.example.NewsComponent.domain.edge.NewsHasHashTag;
 import com.example.NewsComponent.domain.edge.NewsHasInterest;
 import com.example.NewsComponent.domain.edge.NewsIsForLocation;
@@ -14,6 +15,7 @@ import com.example.NewsComponent.mapper.NewsRequestResponseMapper;
 import com.example.NewsComponent.metadata.EdgeName;
 import com.example.NewsComponent.metadata.VertexName;
 import com.example.NewsComponent.repository.NewsRepository;
+import com.example.NewsComponent.repository.edge.NewsHasFileRepository;
 import com.example.NewsComponent.repository.edge.NewsHasHashTagRepository;
 import com.example.NewsComponent.repository.edge.NewsHasInterestRepository;
 import com.example.NewsComponent.repository.edge.NewsIsForLocationRepository;
@@ -29,6 +31,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.example.NewsComponent.utils.FileCombinatorUtils.getAllFilesToSave;
 
@@ -45,6 +48,8 @@ public class NewsCommandService {
     private final NewsIsForLocationRepository newsIsForLocationRepository;
     private final FileRepository fileRepository;
     private final NewsRequestResponseMapper newsRequestResponseMapper;
+
+    private  final NewsHasFileRepository newsHasFileRepository;
 
 
     //TODO media and s3
@@ -74,6 +79,17 @@ public class NewsCommandService {
 
             List<File> savedFiles =
                     fileRepository.saveFiles(arangoDatabase, transactionId, getAllFilesToSave(fileDto));
+
+            List<NewsHasFile> newsHasFiles = savedFiles.stream().map(file -> {
+                NewsHasFile newsHasFile = new NewsHasFile();
+                newsHasFile.set_from(news.getArangoId());
+                newsHasFile.set_to(file.getArangoId());
+                return newsHasFile;
+            }).toList();
+
+            newsHasFiles.forEach(newsHasFile -> newsHasFileRepository.saveNewsHasFileEdge(arangoDatabase,transactionId,newsHasFile));
+
+
             return news;
 
         };
