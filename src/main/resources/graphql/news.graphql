@@ -12,7 +12,8 @@ type Mutation{
 }
 
 type  Query{
-    getAllNews(newsStatus:NewsStatus, paginationFilter: PaginationFilter, newsFilter:NewsFilter ):PaginationResponse
+    getAllNews(newsStatus:NewsStatus, paginationFilter:
+    PaginationFilter, newsFilter:NewsFilter ):PaginationResponse
 }
 
 input NewsFilter{
@@ -47,6 +48,14 @@ input NewsRequest{
     districtIds:[String]
     tehsilIds:[String]
     villageIds:[String]
+    fileInput:FileInput
+}
+
+input FileInput{
+    images: [Upload]
+    audios: [Upload]
+    videos: [Upload]
+    documents: [Upload]
 }
 
 type PaginationResponse{
@@ -71,7 +80,17 @@ type NewsResponse{
     districtIds:[String]
     tehsilIds:[String]
     villageIds:[String]
+    imageUrls: [FileUrl]
+    audioUrls: [FileUrl]
+    videoUrls: [FileUrl]
+    documentUrls: [FileUrl]
 }
+type FileUrl {
+    id: String
+    url: String
+    fileType: String
+}
+
 
 
 input PaginationFilter{
@@ -121,5 +140,5 @@ enum ValueFillingOption {
 }
 
 scalar Object
-#scalar JSON
+scalar Upload
 scalar Long

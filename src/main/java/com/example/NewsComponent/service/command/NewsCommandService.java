@@ -4,6 +4,7 @@ import com.example.NewsComponent.domain.News;
 import com.example.NewsComponent.domain.edge.NewsHasHashTag;
 import com.example.NewsComponent.domain.edge.NewsHasInterest;
 import com.example.NewsComponent.domain.edge.NewsIsForLocation;
+import com.example.NewsComponent.dto.request.FileInputWithPart;
 import com.example.NewsComponent.dto.response.NewsResponse;
 import com.example.NewsComponent.enums.NewsStatus;
 import com.example.NewsComponent.enums.Status;
@@ -57,7 +58,7 @@ public class NewsCommandService {
     }
 
     //TODO media
-    public NewsResponse saveNewsResponse(NewsRequest newsRequest) {
+    public NewsResponse saveNewsResponse(NewsRequest newsRequest, FileInputWithPart fileInputWithPart) {
         News newsForSaving = newsRequestResponseMapper.getNewsForSaving(newsRequest);
 
         List<String> interestIds = newsRequest.getInterestIds();

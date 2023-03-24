@@ -1,6 +1,7 @@
 package com.example.NewsComponent.configuration;
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import graphql.kickstart.servlet.apollo.ApolloScalars;
 import graphql.scalars.ExtendedScalars;
 import graphql.schema.GraphQLScalarType;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +14,8 @@ public class ScalarConfiguration {
     public GraphQLScalarType longScalar() {
         return ExtendedScalars.GraphQLLong;
     }
-//    @Bean
+
+    //    @Bean
 //    public GraphQLScalarType dateScalar(){
 //        return ExtendedScalars.Date;
 //    }
@@ -26,12 +28,15 @@ public class ScalarConfiguration {
 //    public GraphQLScalarType jsonScalar() {
 //        return ExtendedScalars.Json;
 //    }
+    @Bean
+    public GraphQLScalarType uploadScalars() {
+        return ApolloScalars.Upload;
+    }
 
     @Bean
     public GraphQLScalarType objectScalar() {
         return ExtendedScalars.Object;
     }
-
 
 
 }
