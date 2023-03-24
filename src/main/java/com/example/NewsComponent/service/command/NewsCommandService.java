@@ -4,6 +4,8 @@ import com.example.NewsComponent.domain.News;
 import com.example.NewsComponent.domain.edge.NewsHasHashTag;
 import com.example.NewsComponent.domain.edge.NewsHasInterest;
 import com.example.NewsComponent.domain.edge.NewsIsForLocation;
+import com.example.NewsComponent.domain.vertex.File;
+import com.example.NewsComponent.dto.request.FileDto;
 import com.example.NewsComponent.dto.request.FileInputWithPart;
 import com.example.NewsComponent.dto.response.NewsResponse;
 import com.example.NewsComponent.enums.NewsStatus;
@@ -17,54 +19,42 @@ import com.example.NewsComponent.repository.edge.NewsHasInterestRepository;
 import com.example.NewsComponent.repository.edge.NewsIsForLocationRepository;
 import com.example.NewsComponent.repository.vertex.FileRepository;
 import com.example.NewsComponent.service.external.NotificationService;
+import com.example.NewsComponent.service.helper.FileDtoService;
 import com.example.NewsComponent.service.transaction.Action;
 import com.example.NewsComponent.service.transaction.TransactionalWrapper;
 import com.example.NewsComponent.dto.request.NewsRequest;
 import com.example.NewsComponent.dto.internal.*;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static com.example.NewsComponent.utils.FileCombinatorUtils.getAllFilesToSave;
+
 @Service
+@AllArgsConstructor
 public class NewsCommandService {
 
     private final NewsRepository newsRepository;
+    private final FileDtoService fileDtoService;
     private final NewsHasInterestRepository newsHasInterestRepository;
     private final NewsHasHashTagRepository newsHasHashTagRepository;
     private final NotificationService notificationService;
     private final TransactionalWrapper transactionalWrapper;
     private final NewsIsForLocationRepository newsIsForLocationRepository;
     private final FileRepository fileRepository;
-
     private final NewsRequestResponseMapper newsRequestResponseMapper;
 
-    public NewsCommandService(NewsRepository newsRepository,
-                              NewsHasInterestRepository newsHasInterestRepository,
-                              NewsHasHashTagRepository newsHasHashTagRepository,
-                              NotificationService notificationService,
-                              TransactionalWrapper transactionalWrapper,
-                              NewsIsForLocationRepository newsIsForLocationRepository,
-                              FileRepository fileRepository, NewsRequestResponseMapper newsRequestResponseMapper) {
-        this.newsRepository = newsRepository;
-        this.newsHasInterestRepository = newsHasInterestRepository;
-        this.newsHasHashTagRepository = newsHasHashTagRepository;
-        this.notificationService = notificationService;
-        this.transactionalWrapper = transactionalWrapper;
-        this.newsIsForLocationRepository = newsIsForLocationRepository;
-        this.fileRepository = fileRepository;
 
-        this.newsRequestResponseMapper = newsRequestResponseMapper;
-    }
-
-    //TODO media
+    //TODO media and s3
     public NewsResponse saveNewsResponse(NewsRequest newsRequest, FileInputWithPart fileInputWithPart) {
         News newsForSaving = newsRequestResponseMapper.getNewsForSaving(newsRequest);
+        FileDto fileDto = fileDtoService.getFileDto(fileInputWithPart);
 
         List<String> interestIds = newsRequest.getInterestIds();
         List<String> hashtagsIds = newsRequest.getHashTagIds();
         Set<String> locationIds = getLocationIds(newsRequest);
-
 
         Action<News> action = (arangoDatabase, transactionId) -> {
 
@@ -81,6 +71,9 @@ public class NewsCommandService {
             List<NewsHasHashTag> newsHasHashTagList = getNewsHasHashTagList(news, hashtagsIds);
             newsHasHashTagList.forEach(newsHasHashTag ->
                     newsHasHashTagRepository.saveNewsHasHashtagsEdge(arangoDatabase, transactionId, newsHasHashTag));
+
+            List<File> savedFiles =
+                    fileRepository.saveFiles(arangoDatabase, transactionId, getAllFilesToSave(fileDto));
             return news;
 
         };
