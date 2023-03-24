@@ -1,7 +1,6 @@
 package com.example.NewsComponent.service.external;
 
 import com.example.NewsComponent.dto.internal.NotificationRequest;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Qualifier;

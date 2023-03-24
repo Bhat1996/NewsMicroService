@@ -1,13 +1,13 @@
 package com.example.NewsComponent.repository.helper;
 
+import com.example.NewsComponent.enums.NewsStatus;
+import com.example.NewsComponent.enums.Status;
 import com.arangodb.ArangoCursor;
 import com.arangodb.springframework.core.ArangoOperations;
 import com.example.NewsComponent.dto.internal.SearchTokenHelper;
 import com.example.NewsComponent.dto.request.DateFilter;
 import com.example.NewsComponent.dto.request.NewsFilter;
 import com.example.NewsComponent.dto.request.PaginationFilter;
-import com.example.NewsComponent.enums.NewsStatus;
-import com.example.NewsComponent.enums.Status;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;

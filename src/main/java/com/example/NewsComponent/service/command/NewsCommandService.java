@@ -4,12 +4,12 @@ import com.example.NewsComponent.domain.News;
 import com.example.NewsComponent.domain.edge.NewsHasHashTag;
 import com.example.NewsComponent.domain.edge.NewsHasInterest;
 import com.example.NewsComponent.domain.edge.NewsIsForLocation;
-import com.example.NewsComponent.dto.internal.*;
-import com.example.NewsComponent.dto.request.NewsRequest;
 import com.example.NewsComponent.dto.response.NewsResponse;
 import com.example.NewsComponent.enums.NewsStatus;
 import com.example.NewsComponent.enums.Status;
 import com.example.NewsComponent.mapper.NewsRequestResponseMapper;
+import com.example.NewsComponent.metadata.EdgeName;
+import com.example.NewsComponent.metadata.VertexName;
 import com.example.NewsComponent.repository.NewsRepository;
 import com.example.NewsComponent.repository.edge.NewsHasHashTagRepository;
 import com.example.NewsComponent.repository.edge.NewsHasInterestRepository;
@@ -18,13 +18,12 @@ import com.example.NewsComponent.repository.vertex.FileRepository;
 import com.example.NewsComponent.service.external.NotificationService;
 import com.example.NewsComponent.service.transaction.Action;
 import com.example.NewsComponent.service.transaction.TransactionalWrapper;
+import com.example.NewsComponent.dto.request.NewsRequest;
+import com.example.NewsComponent.dto.internal.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-
-import static com.example.NewsComponent.metadata.EdgeName.*;
-import static com.example.NewsComponent.metadata.VertexName.NEWS;
 
 @Service
 public class NewsCommandService {
@@ -85,7 +84,7 @@ public class NewsCommandService {
 
         };
         News savedNews = transactionalWrapper.executeInsideTransaction
-                (Set.of(NEWS, NEWS_HAS_INTEREST, NEWS_HAS_HASHTAG, NEWS_IS_FOR_LOCATION), action);
+                (Set.of(VertexName.NEWS, EdgeName.NEWS_HAS_INTEREST, EdgeName.NEWS_HAS_HASHTAG, EdgeName.NEWS_IS_FOR_LOCATION), action);
         return newsRequestResponseMapper.getNewsResponse(savedNews);
     }
 

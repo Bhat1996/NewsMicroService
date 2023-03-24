@@ -1,5 +1,6 @@
 package com.example.NewsComponent.domain.edge;
 
+import com.example.NewsComponent.metadata.EdgeName;
 import com.arangodb.springframework.annotation.ArangoId;
 import com.arangodb.springframework.annotation.Edge;
 import lombok.Getter;
@@ -8,9 +9,7 @@ import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 
-import static com.example.NewsComponent.metadata.EdgeName.NEWS_IS_FOR_LOCATION;
-
-@Edge(NEWS_IS_FOR_LOCATION)
+@Edge(EdgeName.NEWS_IS_FOR_LOCATION)
 @Getter
 @Setter
 public class NewsIsForLocation {

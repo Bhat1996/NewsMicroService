@@ -1,11 +1,11 @@
 package com.example.NewsComponent.service.query;
 
 import com.example.NewsComponent.dto.request.NewsFilter;
-import com.example.NewsComponent.dto.request.PaginationFilter;
 import com.example.NewsComponent.dto.response.NewsResponse;
-import com.example.NewsComponent.dto.response.Pagination;
 import com.example.NewsComponent.enums.NewsStatus;
 import com.example.NewsComponent.repository.NewsRepository;
+import com.example.NewsComponent.dto.request.PaginationFilter;
+import com.example.NewsComponent.dto.response.Pagination;
 import org.springframework.stereotype.Service;
 
 

@@ -1,11 +1,11 @@
 package com.example.NewsComponent.repository.edge;
 
+import com.example.NewsComponent.domain.edge.NewsHasInterest;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.entity.DocumentCreateEntity;
 import com.arangodb.model.DocumentCreateOptions;
 import com.arangodb.springframework.core.convert.ArangoConverter;
 import com.arangodb.velocypack.VPackSlice;
-import com.example.NewsComponent.domain.edge.NewsHasInterest;
 import org.springframework.stereotype.Repository;
 
 @Repository

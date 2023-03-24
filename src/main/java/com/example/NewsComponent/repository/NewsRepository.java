@@ -1,5 +1,7 @@
 package com.example.NewsComponent.repository;
 
+import com.example.NewsComponent.domain.News;
+import com.example.NewsComponent.dto.response.NewsResponse;
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.entity.DocumentCreateEntity;
@@ -9,10 +11,8 @@ import com.arangodb.model.DocumentUpdateOptions;
 import com.arangodb.springframework.core.ArangoOperations;
 import com.arangodb.springframework.core.convert.ArangoConverter;
 import com.arangodb.velocypack.VPackSlice;
-import com.example.NewsComponent.domain.News;
 import com.example.NewsComponent.dto.request.NewsFilter;
 import com.example.NewsComponent.dto.request.PaginationFilter;
-import com.example.NewsComponent.dto.response.NewsResponse;
 import com.example.NewsComponent.dto.response.PageInfo;
 import com.example.NewsComponent.dto.response.Pagination;
 import com.example.NewsComponent.dto.response.PaginationResponse;

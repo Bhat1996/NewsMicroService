@@ -1,6 +1,5 @@
 package com.example.NewsComponent.repository.edge;
 
-import com.arangodb.ArangoCollection;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.entity.DocumentCreateEntity;
 import com.arangodb.model.DocumentCreateOptions;

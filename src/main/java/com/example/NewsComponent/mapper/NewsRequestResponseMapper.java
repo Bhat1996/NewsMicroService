@@ -1,8 +1,8 @@
 package com.example.NewsComponent.mapper;
 
 import com.example.NewsComponent.domain.News;
-import com.example.NewsComponent.dto.request.NewsRequest;
 import com.example.NewsComponent.dto.response.NewsResponse;
+import com.example.NewsComponent.dto.request.NewsRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.springframework.stereotype.Service;

@@ -1,5 +1,7 @@
 package com.example.NewsComponent.repository.vertex;
 
+import com.example.NewsComponent.metadata.VertexName;
+import com.example.NewsComponent.utils.ArangoIdUtils;
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.entity.DocumentCreateEntity;
@@ -11,15 +13,12 @@ import com.arangodb.springframework.core.ArangoOperations;
 import com.arangodb.springframework.core.convert.ArangoConverter;
 import com.arangodb.velocypack.VPackSlice;
 import com.example.NewsComponent.domain.vertex.File;
-import com.example.NewsComponent.utils.ArangoIdUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.example.NewsComponent.metadata.VertexName.FILE;
 
 @Repository
 public class FileRepository {
@@ -32,7 +31,7 @@ public class FileRepository {
     }
 
     public File saveFile(ArangoDatabase arangoDatabase, String transactionId, File file) {
-        DocumentCreateEntity<VPackSlice> createEntity = arangoDatabase.collection(FILE)
+        DocumentCreateEntity<VPackSlice> createEntity = arangoDatabase.collection(VertexName.FILE)
                 .insertDocument(arangoConverter.write(file),
                         new DocumentCreateOptions().streamTransactionId(transactionId)
                                 .returnNew(true));
@@ -43,7 +42,7 @@ public class FileRepository {
     public File updateFile(ArangoDatabase arangoDatabase,
                            String transactionId,
                            File file) {
-        DocumentUpdateEntity<VPackSlice> updateEntity = arangoDatabase.collection(FILE)
+        DocumentUpdateEntity<VPackSlice> updateEntity = arangoDatabase.collection(VertexName.FILE)
                 .updateDocument(file.getId(),
                         arangoConverter.write(file),
                         new DocumentUpdateOptions()
@@ -65,7 +64,7 @@ public class FileRepository {
                        } IN ${files} RETURN NEW
                 """;
         Map<String, String> templateFiller = new HashMap<>();
-        templateFiller.put("files", FILE);
+        templateFiller.put("files", VertexName.FILE);
         templateFiller.put("fileIdFilter", getFileIdFilter(mediaId));
 
         StringSubstitutor substitutor = new StringSubstitutor(templateFiller);

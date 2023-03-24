@@ -1,4 +1,4 @@
-package com.example.NewsComponent;
+package com.NewsComponent;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

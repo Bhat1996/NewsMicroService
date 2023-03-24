@@ -1,5 +1,6 @@
 package com.example.NewsComponent.domain.vertex;
 
+import com.example.NewsComponent.metadata.VertexName;
 import com.arangodb.springframework.annotation.ArangoId;
 import com.arangodb.springframework.annotation.Document;
 import lombok.AllArgsConstructor;
@@ -10,9 +11,7 @@ import org.springframework.data.annotation.Id;
 
 import java.util.Map;
 
-import static com.example.NewsComponent.metadata.VertexName.FILE;
-
-@Document(FILE)
+@Document(VertexName.FILE)
 @Getter
 @Setter
 @NoArgsConstructor

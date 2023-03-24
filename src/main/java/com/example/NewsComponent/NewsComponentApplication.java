@@ -1,17 +1,18 @@
 package com.example.NewsComponent;
 
+import com.example.NewsComponent.configuration.arangoConfig.MetadataConfiguration;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.springframework.annotation.EnableArangoRepositories;
 import com.arangodb.springframework.core.ArangoOperations;
-import com.example.NewsComponent.configuration.arangoConfig.MetadataConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.event.EventListener;
 
-
 @SpringBootApplication
+@ConfigurationPropertiesScan(basePackages = "com.example.NewsComponent.configuration.properties")
 @EnableArangoRepositories
 public class NewsComponentApplication {
 

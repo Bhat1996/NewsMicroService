@@ -1,6 +1,5 @@
 package com.example.NewsComponent.dto.response;
 
-import com.example.NewsComponent.dto.request.FileInput;
 import com.example.NewsComponent.enums.NewsStatus;
 import com.example.NewsComponent.enums.SortingOrder;
 import com.example.NewsComponent.enums.Status;

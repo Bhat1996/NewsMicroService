@@ -107,6 +107,19 @@ enum Status{
     DELETED
 }
 
+enum FileType {
+    IMAGE
+    AUDIO
+    VIDEO
+    PDF
+    DOCUMENT
+}
+
+enum ValueFillingOption {
+    MANDATORY,
+    NON_MANDATORY
+}
+
 scalar Object
 #scalar JSON
 scalar Long
