@@ -3,8 +3,11 @@ package com.example.NewsComponent.service.external;
 import com.example.NewsComponent.dto.internal.NotificationRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.keycloak.KeycloakPrincipal;
+import org.keycloak.KeycloakSecurityContext;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -36,12 +39,12 @@ public class NotificationService {
         return response.getBody();
     }
 
-    // TODO: 15-03-2023 add keycloak
+    // TODO: 15-03-2023 check keycloak
     private synchronized String getTokenOfCurrentUser() {
-//        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        KeycloakPrincipal<?> keycloakPrincipal = (KeycloakPrincipal<?>) principal;
-//        KeycloakSecurityContext keycloakSecurityContext = keycloakPrincipal.getKeycloakSecurityContext();
-//        return keycloakSecurityContext.getTokenString();
-        return "";
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        KeycloakPrincipal<?> keycloakPrincipal = (KeycloakPrincipal<?>) principal;
+        KeycloakSecurityContext keycloakSecurityContext = keycloakPrincipal.getKeycloakSecurityContext();
+        return keycloakSecurityContext.getTokenString();
+
     }
 }
