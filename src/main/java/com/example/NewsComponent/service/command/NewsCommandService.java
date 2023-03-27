@@ -11,6 +11,7 @@ import com.example.NewsComponent.dto.request.FileInputWithPart;
 import com.example.NewsComponent.dto.response.NewsResponse;
 import com.example.NewsComponent.enums.NewsStatus;
 import com.example.NewsComponent.enums.Status;
+import com.example.NewsComponent.mapper.FileResponseMapper;
 import com.example.NewsComponent.mapper.NewsRequestResponseMapper;
 import com.example.NewsComponent.metadata.EdgeName;
 import com.example.NewsComponent.metadata.VertexName;
@@ -51,6 +52,7 @@ public class NewsCommandService {
     private final NewsRequestResponseMapper newsRequestResponseMapper;
 
     private  final NewsHasFileRepository newsHasFileRepository;
+    private final FileResponseMapper fileResponseMapper;
 
 
     //TODO media and s3
@@ -87,15 +89,14 @@ public class NewsCommandService {
                 newsHasFile.set_to(file.getArangoId());
                 return newsHasFile;
             }).toList();
-
             newsHasFiles.forEach(newsHasFile -> newsHasFileRepository.saveNewsHasFileEdge(arangoDatabase,transactionId,newsHasFile));
             return news;
-
         };
         News savedNews = transactionalWrapper.executeInsideTransaction
                 (Set.of(VertexName.NEWS, EdgeName.NEWS_HAS_INTEREST, EdgeName.NEWS_HAS_HASHTAG,
                         EdgeName.NEWS_IS_FOR_LOCATION,EdgeName.NEWS_HAS_FILE, FILE), action);
-        return newsRequestResponseMapper.getNewsResponse(savedNews);
+        return fileResponseMapper.getNewsResponseWithFiles(savedNews);
+//        return newsRequestResponseMapper.getNewsResponse(savedNews);
     }
 
     public static Set<String> getLocationIds(NewsRequest newsRequest) {

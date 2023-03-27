@@ -1,8 +1,8 @@
 package com.example.NewsComponent.repository.vertex;
 
 import com.arangodb.entity.MultiDocumentEntity;
-import com.example.NewsComponent.domain.News;
-import com.example.NewsComponent.metadata.VertexName;
+import com.example.NewsComponent.dto.internal.FileResults;
+import com.example.NewsComponent.dto.response.NewsResponse;
 import com.example.NewsComponent.utils.ArangoIdUtils;
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDatabase;
@@ -15,6 +15,8 @@ import com.arangodb.springframework.core.ArangoOperations;
 import com.arangodb.springframework.core.convert.ArangoConverter;
 import com.arangodb.velocypack.VPackSlice;
 import com.example.NewsComponent.domain.vertex.File;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,10 +36,12 @@ public class FileRepository {
 
     @Value("${cloudfront.url}")
     private String cloudFrontUrl;
+    private final ObjectMapper objectMapper;
     private final ArangoConverter arangoConverter;
     private final ArangoOperations arangoOperations;
 
-    public FileRepository(ArangoConverter arangoConverter, ArangoOperations arangoOperations) {
+    public FileRepository(ObjectMapper objectMapper, ArangoConverter arangoConverter, ArangoOperations arangoOperations) {
+        this.objectMapper = objectMapper;
         this.arangoConverter = arangoConverter;
         this.arangoOperations = arangoOperations;
     }
@@ -117,10 +121,11 @@ public class FileRepository {
         }
     }
 
-    public void getFiles(String id) {
+    @SneakyThrows
+    public List<FileResults> getFiles(List<String> ids) {
         String query = """
                 FOR doc IN news
-                FILTER doc._key == '${key}'
+                FILTER doc._key in ${keys}
                    LET imageUrls= (
                         FOR file IN 1..1
                         OUTBOUND doc
@@ -128,7 +133,8 @@ public class FileRepository {
                         FILTER file.fileType == 'image'
                         RETURN {
                             id: file._key,
-                            url: CONCAT('${cloudFrontUrl}', "/", file.fileKey)
+                            url: CONCAT('${cloudFrontUrl}', "/", file.fileKey),
+                            fileType:'image'
                         }
                     )
                    LET videoUrls= (
@@ -138,10 +144,11 @@ public class FileRepository {
                         FILTER file.fileType == 'video'
                         RETURN {
                             id: file._key,
-                            url: CONCAT('${cloudFrontUrl}', "/", file.fileKey)
+                            url: CONCAT('${cloudFrontUrl}', "/", file.fileKey),
+                            fileType:'video'
                         }
                    )
-                
+                                
                    LET audioUrls= (
                         FOR file IN 1..1
                         OUTBOUND doc
@@ -149,10 +156,11 @@ public class FileRepository {
                         FILTER file.fileType == 'audio'
                         RETURN {
                             id: file._key,
-                            url: CONCAT('${cloudFrontUrl}', "/", file.fileKey)
+                            url: CONCAT('${cloudFrontUrl}', "/", file.fileKey),
+                            fileType:'audio'
                         }
                    )
-                
+                                
                    LET documentUrls= (
                         FOR file IN 1..1
                         OUTBOUND doc
@@ -160,10 +168,12 @@ public class FileRepository {
                         FILTER file.fileType == 'document'
                         RETURN {
                             id: file._key,
-                            url: CONCAT('${cloudFrontUrl}', "/", file.fileKey)
+                            url: CONCAT('${cloudFrontUrl}', "/", file.fileKey),
+                            fileType:'document'
                         }
                     )
                 RETURN {
+                    id: doc._key,
                     imageUrls:imageUrls,
                     videoUrls:videoUrls,
                     audioUrls:audioUrls,
@@ -171,11 +181,16 @@ public class FileRepository {
                 }
                 """;
 
-        Map<String,String> template=new HashMap<>();
-        template.put("cloudFrontUrl",cloudFrontUrl);
-        template.put("key",id);
+        Map<String, String> template = new HashMap<>();
+        template.put("cloudFrontUrl", cloudFrontUrl);
+        template.put("keys", objectMapper.writeValueAsString(ids) );
 
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
-        stringSubstitutor.replace(query);
+        String replace = stringSubstitutor.replace(query);
+
+        ArangoCursor<FileResults> cursor = arangoOperations.query(replace, FileResults.class);
+       return cursor.asListRemaining();
+
+
     }
 }

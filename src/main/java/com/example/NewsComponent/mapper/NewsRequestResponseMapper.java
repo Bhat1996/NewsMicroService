@@ -7,6 +7,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Mapper(componentModel = "spring")
 public interface NewsRequestResponseMapper {
@@ -16,5 +18,6 @@ public interface NewsRequestResponseMapper {
     NewsResponse getNewsResponse(News news);
 
     News updateNews(@MappingTarget News news, NewsRequest newsRequest);
+
 
 }
