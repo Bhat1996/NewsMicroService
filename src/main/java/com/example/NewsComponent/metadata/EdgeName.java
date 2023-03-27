@@ -6,11 +6,11 @@ import java.util.List;
 
 public class EdgeName {
 
-  public static final String NEWS_IS_FOR_LOCATION = "newsIsForLocation";
+    public static final String NEWS_IS_FOR_LOCATION = "newsIsForLocation";
+    public static final String NEWS_HAS_INTEREST = "newsHasInterest";
+    public static final String NEWS_HAS_HASHTAG = "newsHasHashTag";
 
-    public static final String NEWS_HAS_INTEREST="newsHasInterest";
-
-    public static final String NEWS_HAS_HASHTAG="newsHasHashTag";
+    public static final String NEWS_HAS_FILE = "newsHasFile";
 
 
     public static List<String> namesAsList() {
@@ -18,7 +18,7 @@ public class EdgeName {
         Field[] declaredFields = edgeNameClass.getDeclaredFields();
 
         List<String> names = new ArrayList<>(declaredFields.length);
-        for (Field field: declaredFields) {
+        for (Field field : declaredFields) {
             try {
                 Object o = field.get(EdgeName.class);
                 String name = (String) o;

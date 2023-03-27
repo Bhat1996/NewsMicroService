@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.example.NewsComponent.metadata.VertexName.FILE;
 import static com.example.NewsComponent.utils.FileCombinatorUtils.getAllFilesToSave;
 
 @Service
@@ -88,13 +89,12 @@ public class NewsCommandService {
             }).toList();
 
             newsHasFiles.forEach(newsHasFile -> newsHasFileRepository.saveNewsHasFileEdge(arangoDatabase,transactionId,newsHasFile));
-
-
             return news;
 
         };
         News savedNews = transactionalWrapper.executeInsideTransaction
-                (Set.of(VertexName.NEWS, EdgeName.NEWS_HAS_INTEREST, EdgeName.NEWS_HAS_HASHTAG, EdgeName.NEWS_IS_FOR_LOCATION), action);
+                (Set.of(VertexName.NEWS, EdgeName.NEWS_HAS_INTEREST, EdgeName.NEWS_HAS_HASHTAG,
+                        EdgeName.NEWS_IS_FOR_LOCATION,EdgeName.NEWS_HAS_FILE, FILE), action);
         return newsRequestResponseMapper.getNewsResponse(savedNews);
     }
 

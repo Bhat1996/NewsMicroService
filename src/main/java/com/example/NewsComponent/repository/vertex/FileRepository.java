@@ -1,6 +1,7 @@
 package com.example.NewsComponent.repository.vertex;
 
 import com.arangodb.entity.MultiDocumentEntity;
+import com.example.NewsComponent.domain.News;
 import com.example.NewsComponent.metadata.VertexName;
 import com.example.NewsComponent.utils.ArangoIdUtils;
 import com.arangodb.ArangoCursor;
@@ -16,6 +17,7 @@ import com.arangodb.velocypack.VPackSlice;
 import com.example.NewsComponent.domain.vertex.File;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.text.StringSubstitutor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
@@ -29,6 +31,9 @@ import static java.util.stream.Collectors.toMap;
 
 @Repository
 public class FileRepository {
+
+    @Value("${cloudfront.url}")
+    private String cloudFrontUrl;
     private final ArangoConverter arangoConverter;
     private final ArangoOperations arangoOperations;
 
@@ -80,6 +85,7 @@ public class FileRepository {
 //        streamPublisher.publish(fileMap);
         return savedFiles;
     }
+
     public static String getFileIdFilter(final String fileId) {
         final String keyOrId = ArangoIdUtils.isValidArangoId(fileId) ? "_id" : "_key";
         return "FILTER file." + keyOrId + " == '" + fileId + "'";
@@ -109,5 +115,67 @@ public class FileRepository {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void getFiles(String id) {
+        String query = """
+                FOR doc IN news
+                FILTER doc._key == '${key}'
+                   LET imageUrls= (
+                        FOR file IN 1..1
+                        OUTBOUND doc
+                        newsHasFile
+                        FILTER file.fileType == 'image'
+                        RETURN {
+                            id: file._key,
+                            url: CONCAT('${cloudFrontUrl}', "/", file.fileKey)
+                        }
+                    )
+                   LET videoUrls= (
+                        FOR file IN 1..1
+                        OUTBOUND doc
+                        newsHasFile
+                        FILTER file.fileType == 'video'
+                        RETURN {
+                            id: file._key,
+                            url: CONCAT('${cloudFrontUrl}', "/", file.fileKey)
+                        }
+                   )
+                
+                   LET audioUrls= (
+                        FOR file IN 1..1
+                        OUTBOUND doc
+                        newsHasFile
+                        FILTER file.fileType == 'audio'
+                        RETURN {
+                            id: file._key,
+                            url: CONCAT('${cloudFrontUrl}', "/", file.fileKey)
+                        }
+                   )
+                
+                   LET documentUrls= (
+                        FOR file IN 1..1
+                        OUTBOUND doc
+                        newsHasFile
+                        FILTER file.fileType == 'document'
+                        RETURN {
+                            id: file._key,
+                            url: CONCAT('${cloudFrontUrl}', "/", file.fileKey)
+                        }
+                    )
+                RETURN {
+                    imageUrls:imageUrls,
+                    videoUrls:videoUrls,
+                    audioUrls:audioUrls,
+                    documentUrls:documentUrls
+                }
+                """;
+
+        Map<String,String> template=new HashMap<>();
+        template.put("cloudFrontUrl",cloudFrontUrl);
+        template.put("key",id);
+
+        StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
+        stringSubstitutor.replace(query);
     }
 }
