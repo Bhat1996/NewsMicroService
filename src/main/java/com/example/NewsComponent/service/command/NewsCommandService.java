@@ -89,14 +89,17 @@ public class NewsCommandService {
                 newsHasFile.set_to(file.getArangoId());
                 return newsHasFile;
             }).toList();
-            newsHasFiles.forEach(newsHasFile -> newsHasFileRepository.saveNewsHasFileEdge(arangoDatabase,transactionId,newsHasFile));
+            newsHasFiles.forEach(newsHasFile -> newsHasFileRepository.saveNewsHasFileEdge(arangoDatabase
+                    ,transactionId
+                    ,newsHasFile));
             return news;
         };
         News savedNews = transactionalWrapper.executeInsideTransaction
                 (Set.of(VertexName.NEWS, EdgeName.NEWS_HAS_INTEREST, EdgeName.NEWS_HAS_HASHTAG,
                         EdgeName.NEWS_IS_FOR_LOCATION,EdgeName.NEWS_HAS_FILE, FILE), action);
-        return fileResponseMapper.getNewsResponseWithFiles(savedNews);
-//        return newsRequestResponseMapper.getNewsResponse(savedNews);
+        NewsResponse newsResponse = newsRequestResponseMapper.getNewsResponse(savedNews);
+        return fileResponseMapper.getNewsResponseWithFiles(savedNews.getId(), newsResponse);
+
     }
 
     public static Set<String> getLocationIds(NewsRequest newsRequest) {
@@ -150,7 +153,7 @@ public class NewsCommandService {
         return newsHasInterestList;
     }
 
-
+    // TODO: 28-03-2023 add media in this
     public String updateNews(NewsRequest newsRequest) {
         News news = newsRepository.getNewsById(newsRequest.getId());
         News newsForSaving = newsRequestResponseMapper.updateNews(news, newsRequest);

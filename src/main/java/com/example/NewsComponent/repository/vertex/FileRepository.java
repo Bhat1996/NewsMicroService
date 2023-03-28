@@ -189,8 +189,11 @@ public class FileRepository {
         String replace = stringSubstitutor.replace(query);
 
         ArangoCursor<FileResults> cursor = arangoOperations.query(replace, FileResults.class);
-       return cursor.asListRemaining();
-
+       try(cursor){
+           return cursor.asListRemaining();
+       }catch(IOException e){
+           throw new RuntimeException(e);
+       }
 
     }
 }
