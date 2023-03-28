@@ -50,7 +50,6 @@ public class NewsCommandService {
     private final NewsIsForLocationRepository newsIsForLocationRepository;
     private final FileRepository fileRepository;
     private final NewsRequestResponseMapper newsRequestResponseMapper;
-
     private  final NewsHasFileRepository newsHasFileRepository;
     private final FileResponseMapper fileResponseMapper;
 

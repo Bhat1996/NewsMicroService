@@ -17,7 +17,9 @@ public class NewsQueryResolver implements GraphQLQueryResolver {
         this.newsQueryService = newsQueryService;
     }
 
-    public Pagination<NewsResponse> getAllNews(NewsStatus newsStatus, PaginationFilter paginationFilter, NewsFilter newsFilter){
+    public Pagination<NewsResponse> getAllNews(NewsStatus newsStatus,
+                                               PaginationFilter paginationFilter,
+                                               NewsFilter newsFilter){
         return newsQueryService.getAllNews(newsStatus, paginationFilter, newsFilter);
     }
 }

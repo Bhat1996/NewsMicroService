@@ -18,6 +18,7 @@ import com.example.NewsComponent.dto.response.Pagination;
 import com.example.NewsComponent.dto.response.PaginationResponse;
 import com.example.NewsComponent.enums.NewsStatus;
 import com.example.NewsComponent.exceptions.ResourceNotFoundException;
+import com.example.NewsComponent.mapper.FileResponseMapper;
 import com.example.NewsComponent.mapper.NewsRequestResponseMapper;
 import com.example.NewsComponent.repository.helper.NewsQueryGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,6 +27,7 @@ import org.apache.commons.text.StringSubstitutor;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,6 +42,7 @@ public class NewsRepository {
     private final NewsQueryGenerator newsQueryGenerator;
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    private final FileResponseMapper fileResponseMapper;
 
 
     public News getNewsById(String id) {
@@ -77,8 +80,15 @@ public class NewsRepository {
                 PageInfo pageInfo = PageInfo.ofResult(total, paginationFilter);
 
                 List<News> newsList = paginationResponse.getList();
+
                 List<NewsResponse> responseList =
-                        newsList.stream().map(newsRequestResponseMapper::getNewsResponse).toList();
+                        new ArrayList<>();
+                for (News news : newsList) {
+                    NewsResponse newsResponse = newsRequestResponseMapper.getNewsResponse(news);
+                    NewsResponse newsResponseWithFiles = fileResponseMapper.getNewsResponseWithFiles(news.getId(), newsResponse);
+                    responseList.add(newsResponseWithFiles);
+
+                }
                 return new Pagination<>(responseList, pageInfo);
             } else {
                 // TODO: 21-03-2023 give proper exception
