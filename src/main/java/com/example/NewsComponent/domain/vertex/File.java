@@ -17,19 +17,14 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class File {
+
     @Id
     private String id;
-
     @ArangoId
     private String arangoId;
-
     private Map<String, String> seoTag;
-
     private Map<String, String> imageTitle;
-
     private String fileName;
-
     private String fileKey;
-
     private String fileType;
 }

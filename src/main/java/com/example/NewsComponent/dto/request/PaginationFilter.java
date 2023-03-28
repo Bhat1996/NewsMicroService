@@ -16,7 +16,7 @@ public class PaginationFilter {
 
     private SortingOrder order;
 
-    public Integer skip(){
+    public Integer skip() {
         return offset * limit;
     }
 

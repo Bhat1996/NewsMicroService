@@ -95,8 +95,12 @@ public class NewsCommandService {
             return news;
         };
         News savedNews = transactionalWrapper.executeInsideTransaction
-                (Set.of(VertexName.NEWS, EdgeName.NEWS_HAS_INTEREST, EdgeName.NEWS_HAS_HASHTAG,
-                        EdgeName.NEWS_IS_FOR_LOCATION,EdgeName.NEWS_HAS_FILE, FILE), action);
+                (Set.of(VertexName.NEWS,
+                        EdgeName.NEWS_HAS_INTEREST,
+                        EdgeName.NEWS_HAS_HASHTAG,
+                        EdgeName.NEWS_IS_FOR_LOCATION,
+                        EdgeName.NEWS_HAS_FILE, FILE), action);
+
         NewsResponse newsResponse = newsRequestResponseMapper.getNewsResponse(savedNews);
         return fileResponseMapper.getNewsResponseWithFiles(savedNews.getId(), newsResponse);
 
@@ -237,7 +241,6 @@ public class NewsCommandService {
         Action<News> action = (arangoDatabase, transactionId) ->
                 newsRepository.updateNews(arangoDatabase, transactionId, news);
         News savedNews = transactionalWrapper.executeInsideTransaction(Set.of("news"), action);
-
         return "deleted";
     }
 

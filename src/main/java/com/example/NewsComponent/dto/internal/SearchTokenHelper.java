@@ -7,9 +7,7 @@ import java.util.List;
 
 public class SearchTokenHelper {
     private static final int MINIMUM_TOKEN_LENGTH = 2;
-
     private final String[] splitSearchWords;
-
     public SearchTokenHelper(final String searchWord) {
         this.splitSearchWords = StringUtils.split(searchWord);
     }

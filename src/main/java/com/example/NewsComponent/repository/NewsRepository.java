@@ -21,6 +21,7 @@ import com.example.NewsComponent.exceptions.ResourceNotFoundException;
 import com.example.NewsComponent.mapper.NewsRequestResponseMapper;
 import com.example.NewsComponent.repository.helper.NewsQueryGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.stereotype.Repository;
 
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Repository
+@AllArgsConstructor
 public class NewsRepository {
 
     private final ArangoOperations arangoOperations;
@@ -38,15 +40,7 @@ public class NewsRepository {
     private final NewsQueryGenerator newsQueryGenerator;
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public NewsRepository(ArangoOperations arangoOperations,
-                          ArangoConverter arangoConverter,
-                          NewsRequestResponseMapper newsRequestResponseMapper,
-                          NewsQueryGenerator newsQueryGenerator) {
-        this.arangoOperations = arangoOperations;
-        this.arangoConverter = arangoConverter;
-        this.newsRequestResponseMapper = newsRequestResponseMapper;
-        this.newsQueryGenerator = newsQueryGenerator;
-    }
+
 
     public News getNewsById(String id) {
         String query = """
@@ -111,8 +105,7 @@ public class NewsRepository {
                 .updateDocument(news.getId(), arangoConverter.write(news),
                         new DocumentUpdateOptions()
                                 .streamTransactionId(transactionId).returnNew(true));
-        VPackSlice aNew = updatedNews.getNew();
-        return arangoConverter.read(News.class, aNew);
+        return arangoConverter.read(News.class, updatedNews.getNew());
 
     }
 

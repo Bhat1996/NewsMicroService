@@ -12,16 +12,12 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class NewsHasInterest {
-
     @Id
     private String id;
-
     @ArangoId
     private String arangoId;
-
     private String _from;
     private String _to;
-
     private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
 }

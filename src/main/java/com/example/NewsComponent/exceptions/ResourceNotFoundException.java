@@ -16,7 +16,6 @@ public class ResourceNotFoundException extends RuntimeException implements Graph
         super(message);
     }
 
-
     @Override
     public List<SourceLocation> getLocations() {
         return null;

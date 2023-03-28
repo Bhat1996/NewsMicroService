@@ -15,10 +15,9 @@ import java.util.Objects;
 @Service
 @AllArgsConstructor
 public class FileResponseMapper {
-
     private final FileRepository fileRepository;
 
-    public NewsResponse getNewsResponseWithFiles(String id, NewsResponse newsResponse){
+    public NewsResponse getNewsResponseWithFiles(String id, NewsResponse newsResponse) {
         List<FileResults> files = fileRepository.getFiles(List.of(id));
         FileResults results = files.stream().filter(fileResults ->
                         Objects.equals(fileResults.getId(), id))

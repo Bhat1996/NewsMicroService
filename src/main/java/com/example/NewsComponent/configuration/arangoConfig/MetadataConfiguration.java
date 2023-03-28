@@ -48,12 +48,12 @@ public class MetadataConfiguration {
         });
     }
 
-    public void newsSearchView(){
-        ArangoView view=arangoDatabase.view(ViewName.NEWS_SEARCH);
-        if(not (view.exists())){
+    public void newsSearchView() {
+        ArangoView view = arangoDatabase.view(ViewName.NEWS_SEARCH);
+        if (not(view.exists())) {
             ArangoSearchCreateOptions searchCreateOptions = new ArangoSearchCreateOptions();
 
-            CollectionLink newsCollectionLink=CollectionLink.on(NEWS)
+            CollectionLink newsCollectionLink = CollectionLink.on(NEWS)
                     .includeAllFields(false)
                     .analyzers("text_en")
                     .fields(

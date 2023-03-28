@@ -13,11 +13,11 @@ import java.time.LocalDateTime;
 @Edge("newsHasFile")
 public class NewsHasFile {
     @Id
-    private  String id;
+    private String id;
     @ArangoId
-    private  String arangoId;
+    private String arangoId;
     private String _from;
-    private  String _to;
+    private String _to;
     private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
 }

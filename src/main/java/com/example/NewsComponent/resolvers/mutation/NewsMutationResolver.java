@@ -10,6 +10,7 @@ import com.example.NewsComponent.validations.afterBinding.NewsValidator;
 import graphql.kickstart.servlet.context.DefaultGraphQLServletContext;
 import graphql.kickstart.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -22,20 +23,14 @@ import java.util.Map;
 
 @Service
 @Validated
+@AllArgsConstructor
 public class NewsMutationResolver implements GraphQLMutationResolver {
 
     private  final NewsCommandService newsCommandService;
     private  final LanguageValidator languageValidator;
     private  final NewsValidator newsValidator;
 
-    public NewsMutationResolver(NewsCommandService newsCommandService,
-                                LanguageValidator languageValidator,
-                                NewsValidator newsValidator) {
-        this.newsCommandService = newsCommandService;
-        this.languageValidator = languageValidator;
-        this.newsValidator = newsValidator;
 
-    }
 
     public NewsResponse savedNews(@Valid NewsRequest newsRequest ,
                                   final DataFetchingEnvironment dataFetchingEnvironment){
