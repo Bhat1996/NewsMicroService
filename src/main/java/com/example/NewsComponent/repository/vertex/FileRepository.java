@@ -2,7 +2,6 @@ package com.example.NewsComponent.repository.vertex;
 
 import com.arangodb.entity.MultiDocumentEntity;
 import com.example.NewsComponent.dto.internal.FileResults;
-import com.example.NewsComponent.dto.response.NewsResponse;
 import com.example.NewsComponent.utils.ArangoIdUtils;
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDatabase;
@@ -16,7 +15,6 @@ import com.arangodb.springframework.core.convert.ArangoConverter;
 import com.arangodb.velocypack.VPackSlice;
 import com.example.NewsComponent.domain.vertex.File;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.text.StringSubstitutor;
@@ -33,7 +31,6 @@ import static com.example.NewsComponent.metadata.VertexName.FILE;
 import static java.util.stream.Collectors.toMap;
 
 @Repository
-@AllArgsConstructor
 public class FileRepository {
 
     @Value("${cloudfront.url}")
@@ -42,6 +39,13 @@ public class FileRepository {
     private final ArangoConverter arangoConverter;
     private final ArangoOperations arangoOperations;
 
+    public FileRepository(ObjectMapper objectMapper,
+                          ArangoConverter arangoConverter,
+                          ArangoOperations arangoOperations) {
+        this.objectMapper = objectMapper;
+        this.arangoConverter = arangoConverter;
+        this.arangoOperations = arangoOperations;
+    }
 
 
     public File saveFile(ArangoDatabase arangoDatabase, String transactionId, File file) {
@@ -84,6 +88,7 @@ public class FileRepository {
                 .toList();
 
         Map<String, Object> fileMap = savedFiles.stream().collect(toMap(File::getArangoId, Function.identity()));
+        // TODO: 28-03-2023 check here
 //        streamPublisher.publish(fileMap);
         return savedFiles;
     }
