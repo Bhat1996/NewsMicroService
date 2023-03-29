@@ -37,41 +37,80 @@ public class NewsQueryGenerator {
 
 
     public String getQuery(NewsFilter newsFilter, PaginationFilter paginationFilter, NewsStatus newsStatus) {
+//        String query = """
+//                ${uniqueSortedListBasedOnScore}
+//                FILTER doc.newsStatus == '${newsStatus}'
+//                LET list = (
+//
+//                    ${languageFilter}
+//                    ${countryIds}
+//                    ${stateIds}
+//                    ${districtIds}
+//                    ${tehsilIds}
+//                    ${villageIds}
+//                    ${status}
+//                    ${dateFilter}
+//                    SORT doc.newsPublishDate ${order}
+//                    LIMIT ${skip}, ${limit}
+//                    RETURN doc
+//                )
+//                LET total = (
+//
+//                    ${languageFilter}
+//                    ${countryIds}
+//                    ${stateIds}
+//                    ${districtIds}
+//                    ${tehsilIds}
+//                    ${villageIds}
+//                    ${status}
+//                    ${dateFilter}
+//                    COLLECT WITH COUNT INTO size
+//                    RETURN size
+//                )
+//
+//                RETURN {
+//                    list: list,
+//                    total: first(total)
+//                }
+//                """;
         String query = """
-                ${uniqueSortedListBasedOnScore}
-                FILTER doc.newsStatus == '${newsStatus}'
-                LET list = (
-                    
-                    ${languageFilter}
-                    ${countryIds}
-                    ${stateIds}
-                    ${districtIds}
-                    ${tehsilIds}
-                    ${villageIds}
-                    ${status}
-                    ${dateFilter}
-                    SORT doc.newsPublishDate ${order}
-                    LIMIT ${skip}, ${limit}
-                    RETURN doc
+               
+                 LET total = (
+                                           ${uniqueSortedListBasedOnScore}
+                    FILTER doc.newsStatus == '${newsStatus}'
+                                          ${languageFilter}
+                                          ${countryIds}
+                                          ${stateIds}
+                                          ${districtIds}
+                                          ${tehsilIds}
+                                          ${villageIds}
+                                          ${status}
+                                          ${dateFilter}
+                        COLLECT WITH COUNT INTO size
+                        RETURN size
                 )
-                LET total = (
-                    
-                    ${languageFilter}
-                    ${countryIds}
-                    ${stateIds}
-                    ${districtIds}
-                    ${tehsilIds}
-                    ${villageIds}
-                    ${status}
-                    ${dateFilter}
-                    COLLECT WITH COUNT INTO size
-                    RETURN size
-                )
-                                  
-                RETURN {
-                    list: list,
-                    total: first(total)
-                }
+                        LET finalCount=(
+                                           ${uniqueSortedListBasedOnScore}
+                    FILTER doc.newsStatus == '${newsStatus}'
+                        SORT doc.newsPublishDate ASC
+                                           ${languageFilter}
+                                           ${countryIds}
+                                           ${stateIds}
+                                           ${districtIds}
+                                           ${tehsilIds}
+                                           ${villageIds}
+                                           ${status}
+                                           ${dateFilter}
+                        LIMIT 0, 10
+                        RETURN doc)
+                                
+                       
+                        RETURN {
+                         
+                            list:finalCount,
+                            total: first(total)
+                        }
+                                
                 """;
 
 
@@ -132,7 +171,9 @@ public class NewsQueryGenerator {
         queryParams.put("limit", paginationFilter.getLimit().toString());
         queryParams.put("newsStatus", newsStatus.toString());
 
-        return new StringSubstitutor(queryParams).replace(query);
+        String replace = new StringSubstitutor(queryParams).replace(query);
+        System.out.println(replace);
+        return replace;
     }
 
 
@@ -169,7 +210,7 @@ public class NewsQueryGenerator {
 
     @SneakyThrows
     public static String getTehsilIds(Set<String> tehsilIds) {
-        String query = "filter doc.tehsilIds any in ${value}";
+        String query = "filter docs.tehsilIds any in ${value}";
         Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(tehsilIds));
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);

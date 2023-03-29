@@ -23,6 +23,7 @@ import com.example.NewsComponent.mapper.NewsRequestResponseMapper;
 import com.example.NewsComponent.repository.helper.NewsQueryGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.stereotype.Repository;
 
@@ -64,11 +65,12 @@ public class NewsRepository {
         }
     }
 
+    @SneakyThrows
     public Pagination<NewsResponse> getAllNews(NewsFilter newsFilter,
-                                               PaginationFilter paginationFilter, NewsStatus newsStatus){
+                                               PaginationFilter paginationFilter,
+                                               NewsStatus newsStatus) {
 
         String finalQuery = newsQueryGenerator.getQuery(newsFilter, paginationFilter, newsStatus);
-        System.out.println(finalQuery);
         ArangoCursor<PaginationResponse> cursor =
                 arangoOperations.query(finalQuery, PaginationResponse.class);
         try (cursor) {
@@ -85,7 +87,8 @@ public class NewsRepository {
                         new ArrayList<>();
                 for (News news : newsList) {
                     NewsResponse newsResponse = newsRequestResponseMapper.getNewsResponse(news);
-                    NewsResponse newsResponseWithFiles = fileResponseMapper.getNewsResponseWithFiles(news.getId(), newsResponse);
+                    NewsResponse newsResponseWithFiles = fileResponseMapper.getNewsResponseWithFiles
+                            (news.getId(), newsResponse);
                     responseList.add(newsResponseWithFiles);
 
                 }
@@ -98,6 +101,7 @@ public class NewsRepository {
             throw new RuntimeException(ioException);
         }
     }
+
     public News saveNews(ArangoDatabase arangoDatabase, String transactionId, News news) {
 
         DocumentCreateEntity<VPackSlice> createEntity = arangoDatabase.collection("news")
@@ -105,7 +109,7 @@ public class NewsRepository {
                         new DocumentCreateOptions()
                                 .streamTransactionId(transactionId)
                                 .returnNew(true));
-        return arangoConverter.read(News.class,createEntity.getNew());
+        return arangoConverter.read(News.class, createEntity.getNew());
     }
 
     public News updateNews(ArangoDatabase arangoDatabase, String transactionId, News news) {

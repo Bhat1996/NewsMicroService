@@ -8,6 +8,7 @@ import com.example.NewsComponent.domain.edge.NewsIsForLocation;
 import com.example.NewsComponent.domain.vertex.File;
 import com.example.NewsComponent.dto.request.FileDto;
 import com.example.NewsComponent.dto.request.FileInputWithPart;
+import com.example.NewsComponent.dto.request.FileKeyWithOriginalName;
 import com.example.NewsComponent.dto.response.NewsResponse;
 import com.example.NewsComponent.enums.NewsStatus;
 import com.example.NewsComponent.enums.Status;
@@ -32,7 +33,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.example.NewsComponent.metadata.VertexName.FILE;
 import static com.example.NewsComponent.utils.FileCombinatorUtils.getAllFilesToSave;
@@ -50,8 +50,11 @@ public class NewsCommandService {
     private final NewsIsForLocationRepository newsIsForLocationRepository;
     private final FileRepository fileRepository;
     private final NewsRequestResponseMapper newsRequestResponseMapper;
-    private  final NewsHasFileRepository newsHasFileRepository;
+    private final NewsHasFileRepository newsHasFileRepository;
     private final FileResponseMapper fileResponseMapper;
+    private  final NewsHasFile newsHasFile;
+    private final FileKeyWithOriginalName fileKeyWithOriginalName;
+
 
 
     //TODO media and s3
@@ -89,8 +92,8 @@ public class NewsCommandService {
                 return newsHasFile;
             }).toList();
             newsHasFiles.forEach(newsHasFile -> newsHasFileRepository.saveNewsHasFileEdge(arangoDatabase
-                    ,transactionId
-                    ,newsHasFile));
+                    , transactionId
+                    , newsHasFile));
             return news;
         };
         News savedNews = transactionalWrapper.executeInsideTransaction
@@ -157,15 +160,22 @@ public class NewsCommandService {
     }
 
     // TODO: 28-03-2023 add media in this
-    public String updateNews(NewsRequest newsRequest) {
+    public String updateNews(NewsRequest newsRequest,File file) {
         News news = newsRepository.getNewsById(newsRequest.getId());
+        String hasFile=file.getId();
+        if (hasFile.isEmpty()) {
+            News newsForSaving = newsRequestResponseMapper.updateNews(news, newsRequest);
+            Action<News> action = (arangoDatabase, transactionId) ->
+                    newsRepository.updateNews(arangoDatabase, transactionId, newsForSaving);
+            News savedNews = transactionalWrapper.executeInsideTransaction(Set.of("news"), action);
+            NewsResponse newsResponse = newsRequestResponseMapper.getNewsResponse(savedNews);
 
+        }else {
+           String file1= file.getId();
+            file.setFileKey(fileKeyWithOriginalName.fileKey());
+            file.setFileName(fileKeyWithOriginalName.fileOriginalName());
+        }
 
-        News newsForSaving = newsRequestResponseMapper.updateNews(news, newsRequest);
-        Action<News> action = (arangoDatabase, transactionId) ->
-                newsRepository.updateNews(arangoDatabase, transactionId, newsForSaving);
-        News savedNews = transactionalWrapper.executeInsideTransaction(Set.of("news"), action);
-        newsRequestResponseMapper.getNewsResponse(savedNews);
         return "updated";
     }
 
@@ -183,7 +193,7 @@ public class NewsCommandService {
         News newsById = newsRepository.getNewsById(newsId);
 
         Location location = getPublishedLocationForNotify(newsById);
-        Set<String> languageCodes =  newsById.getTitle().keySet();
+        Set<String> languageCodes = newsById.getTitle().keySet();
         String language = String.join(",", languageCodes);
         location.setLang(language);
 
@@ -244,7 +254,6 @@ public class NewsCommandService {
         News savedNews = transactionalWrapper.executeInsideTransaction(Set.of("news"), action);
         return "deleted";
     }
-
 
 
 }

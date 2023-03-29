@@ -1,5 +1,6 @@
 package com.example.NewsComponent.resolvers.mutation;
 
+import com.example.NewsComponent.domain.vertex.File;
 import com.example.NewsComponent.dto.response.NewsResponse;
 import com.example.NewsComponent.validations.LanguageValidator;
 import com.example.NewsComponent.dto.request.FileInputWithPart;
@@ -69,8 +70,8 @@ public class NewsMutationResolver implements GraphQLMutationResolver {
         return newsCommandService.deleteNews(id);
    }
 
-   public String updateNews(@Valid NewsRequest newsRequest) {
+   public String updateNews(@Valid NewsRequest newsRequest, File file) {
        languageValidator.languageValidateChecker(newsRequest);
-        return newsCommandService.updateNews(newsRequest);
+        return newsCommandService.updateNews(newsRequest,file);
    }
 }
