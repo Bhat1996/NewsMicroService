@@ -159,6 +159,8 @@ public class NewsCommandService {
     // TODO: 28-03-2023 add media in this
     public String updateNews(NewsRequest newsRequest) {
         News news = newsRepository.getNewsById(newsRequest.getId());
+
+
         News newsForSaving = newsRequestResponseMapper.updateNews(news, newsRequest);
         Action<News> action = (arangoDatabase, transactionId) ->
                 newsRepository.updateNews(arangoDatabase, transactionId, newsForSaving);
