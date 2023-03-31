@@ -8,7 +8,6 @@ import com.example.NewsComponent.domain.edge.NewsIsForLocation;
 import com.example.NewsComponent.domain.vertex.File;
 import com.example.NewsComponent.dto.request.FileDto;
 import com.example.NewsComponent.dto.request.FileInputWithPart;
-import com.example.NewsComponent.dto.request.FileKeyWithOriginalName;
 import com.example.NewsComponent.dto.response.NewsResponse;
 import com.example.NewsComponent.enums.NewsStatus;
 import com.example.NewsComponent.enums.Status;
@@ -28,7 +27,9 @@ import com.example.NewsComponent.service.transaction.Action;
 import com.example.NewsComponent.service.transaction.TransactionalWrapper;
 import com.example.NewsComponent.dto.request.NewsRequest;
 import com.example.NewsComponent.dto.internal.*;
+import graphql.analysis.QueryReducer;
 import lombok.AllArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -52,9 +53,6 @@ public class NewsCommandService {
     private final NewsRequestResponseMapper newsRequestResponseMapper;
     private final NewsHasFileRepository newsHasFileRepository;
     private final FileResponseMapper fileResponseMapper;
-    private  final NewsHasFile newsHasFile;
-    private final FileKeyWithOriginalName fileKeyWithOriginalName;
-
 
 
     //TODO media and s3
@@ -160,23 +158,32 @@ public class NewsCommandService {
     }
 
     // TODO: 28-03-2023 add media in this
-    public String updateNews(NewsRequest newsRequest,File file) {
+    public NewsResponse updateNews(NewsRequest newsRequest, FileInputWithPart fileInputWithPart) {
         News news = newsRepository.getNewsById(newsRequest.getId());
-        String hasFile=file.getId();
-        if (hasFile.isEmpty()) {
-            News newsForSaving = newsRequestResponseMapper.updateNews(news, newsRequest);
-            Action<News> action = (arangoDatabase, transactionId) ->
-                    newsRepository.updateNews(arangoDatabase, transactionId, newsForSaving);
-            News savedNews = transactionalWrapper.executeInsideTransaction(Set.of("news"), action);
-            NewsResponse newsResponse = newsRequestResponseMapper.getNewsResponse(savedNews);
+        FileDto fileDto = fileDtoService.getFileDto(fileInputWithPart);
+        News newsForSaving = newsRequestResponseMapper.updateNews(news, newsRequest);
 
-        }else {
-           String file1= file.getId();
-            file.setFileKey(fileKeyWithOriginalName.fileKey());
-            file.setFileName(fileKeyWithOriginalName.fileOriginalName());
-        }
+        Action<News> action = (arangoDatabase, transactionId) ->{
+            News savedNews = newsRepository.updateNews(arangoDatabase, transactionId, newsForSaving);
+            List<File> savedFiles =
+                    fileRepository.saveFiles(arangoDatabase, transactionId, getAllFilesToSave(fileDto));
 
-        return "updated";
+            List<NewsHasFile> newsHasFiles = savedFiles.stream().map(file -> {
+                NewsHasFile newsHasFile = new NewsHasFile();
+                newsHasFile.set_from(news.getArangoId());
+                newsHasFile.set_to(file.getArangoId());
+                return newsHasFile;
+            }).toList();
+            newsHasFiles.forEach(newsHasFile -> newsHasFileRepository.saveNewsHasFileEdge(arangoDatabase,
+                    transactionId,newsHasFile));
+            return savedNews;
+        };
+
+        News saveNews = transactionalWrapper.executeInsideTransaction(Set.of("news", "newsHasFile", "files"),
+                action);
+        NewsResponse newsResponse = newsRequestResponseMapper.getNewsResponse(saveNews);
+        fileResponseMapper.getNewsResponseWithFiles(saveNews.getId(), newsResponse);
+        return newsResponse;
     }
 
     public NewsResponse publishNews(String newsId) {

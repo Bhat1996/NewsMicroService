@@ -28,7 +28,7 @@ public class NewsValidator {
 
     public void validateMultipartFile(final FileInputWithPart fileInputWithPart,
                                           final HttpServletRequest httpServletRequest) {
-        throwExceptionIfOnlyImagePostedInQuestion(fileInputWithPart);
+        throwExceptionIfOnlyImagePostedInNews(fileInputWithPart);
 
 
         throwExceptionIfFileMaxImageCountExceed(fileInputWithPart.getImages());
@@ -45,7 +45,7 @@ public class NewsValidator {
         fileSizeValidator.validateSize(fileInputWithPart, httpServletRequest);
     }
 
-    private void throwExceptionIfOnlyImagePostedInQuestion(final FileInputWithPart fileInputWithPart) {
+    private void throwExceptionIfOnlyImagePostedInNews(final FileInputWithPart fileInputWithPart) {
         NewsImageValidation newsImageValidation =
                 NewsImageValidation
                         .builder()

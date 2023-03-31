@@ -18,7 +18,7 @@ import java.util.Set;
 public class NewsRequest {
 
     private String id;
-    @NotNull
+    @NotNull(message = "provide valid title")
     private Map<String,String> title;
     private Map<String,String>  description;
     private Map<String,String>  slugTitle;
@@ -29,11 +29,11 @@ public class NewsRequest {
     private SortingOrder sortingOrder;
     @NotBlank
     private String remarks;
-    @NotNull
+    @NotNull(message = "provide valid interest")
     private List<String> interestIds;
-    @NotBlank
+    @NotBlank(message = "provide valid newsSource")
     private String newsSource;
-    @NotBlank
+    @NotBlank(message = "provide valid sourceLink")
     private String sourceLink;
     private LocalDateTime newsPublishDate;
     @NotNull
@@ -42,5 +42,6 @@ public class NewsRequest {
     private Set<String> districtIds;
     private Set<String> tehsilIds;
     private Set<String> villageIds;
+    @NotNull(message = "provide fileInput")
     private FileInput fileInput;
 }

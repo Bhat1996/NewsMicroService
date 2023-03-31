@@ -70,8 +70,27 @@ public class NewsMutationResolver implements GraphQLMutationResolver {
         return newsCommandService.deleteNews(id);
    }
 
-   public String updateNews(@Valid NewsRequest newsRequest, File file) {
-       languageValidator.languageValidateChecker(newsRequest);
-        return newsCommandService.updateNews(newsRequest,file);
+   public String updateNews(@Valid NewsRequest newsRequest, final DataFetchingEnvironment dataFetchingEnvironment) {
+       DefaultGraphQLServletContext context = dataFetchingEnvironment.getContext();
+
+       HttpServletRequest httpServletRequest = context.getHttpServletRequest();
+       String contentType = httpServletRequest.getContentType();
+       if (contentType.contains("multipart/")) {
+           Map<String, List<Part>> parts = context.getParts();
+
+           FileInputMapper fileInputMapper = new FileInputMapper(newsRequest, parts);
+           FileInputWithPart fileInputWithPart = fileInputMapper.getFileInputWithPart();
+
+//           newsValidator.validateMultipartFile(fileInputWithPart, httpServletRequest);
+           languageValidator.languageValidateChecker(newsRequest);
+           newsCommandService.updateNews(newsRequest, fileInputWithPart);
+           return "updated";
+       } else {
+           FileInputMapper fileInputMapper = new FileInputMapper(newsRequest, Map.of());
+           FileInputWithPart fileInputWithPart = fileInputMapper.getFileInputWithPart();
+           languageValidator.languageValidateChecker(newsRequest);
+           newsCommandService.updateNews(newsRequest, fileInputWithPart);
+           return "updated";
+       }
    }
 }
