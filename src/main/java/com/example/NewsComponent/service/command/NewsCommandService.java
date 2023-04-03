@@ -157,7 +157,6 @@ public class NewsCommandService {
         return newsHasInterestList;
     }
 
-    // TODO: 28-03-2023 add media in this
     public NewsResponse updateNews(NewsRequest newsRequest, FileInputWithPart fileInputWithPart) {
         News news = newsRepository.getNewsById(newsRequest.getId());
         FileDto fileDto = fileDtoService.getFileDto(fileInputWithPart);
@@ -182,8 +181,8 @@ public class NewsCommandService {
         News saveNews = transactionalWrapper.executeInsideTransaction(Set.of("news", "newsHasFile", "files"),
                 action);
         NewsResponse newsResponse = newsRequestResponseMapper.getNewsResponse(saveNews);
-        fileResponseMapper.getNewsResponseWithFiles(saveNews.getId(), newsResponse);
-        return newsResponse;
+        return fileResponseMapper.getNewsResponseWithFiles(saveNews.getId(), newsResponse);
+
     }
 
     public NewsResponse publishNews(String newsId) {
@@ -258,7 +257,7 @@ public class NewsCommandService {
         news.setStatus(Status.DELETED);
         Action<News> action = (arangoDatabase, transactionId) ->
                 newsRepository.updateNews(arangoDatabase, transactionId, news);
-        News savedNews = transactionalWrapper.executeInsideTransaction(Set.of("news"), action);
+         transactionalWrapper.executeInsideTransaction(Set.of("news"), action);
         return "deleted";
     }
 
@@ -267,7 +266,7 @@ public class NewsCommandService {
         file.setStatus(Status.DELETED);
         Action<File> action = (arangoDatabase, transactionId) ->
                 fileRepository.updateFile(arangoDatabase, transactionId, file);
-        File savedFile = transactionalWrapper.executeInsideTransaction(Set.of("files"), action);
+        transactionalWrapper.executeInsideTransaction(Set.of("files"), action);
         return "deleted";
     }
 

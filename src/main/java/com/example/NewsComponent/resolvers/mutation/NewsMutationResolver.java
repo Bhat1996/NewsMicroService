@@ -1,6 +1,5 @@
 package com.example.NewsComponent.resolvers.mutation;
 
-import com.example.NewsComponent.domain.vertex.File;
 import com.example.NewsComponent.dto.response.NewsResponse;
 import com.example.NewsComponent.validations.LanguageValidator;
 import com.example.NewsComponent.dto.request.FileInputWithPart;
@@ -74,7 +73,7 @@ public class NewsMutationResolver implements GraphQLMutationResolver {
         return newsCommandService.deleteFiles(fileId);
    }
 
-   public String updateNews(@Valid NewsRequest newsRequest, final DataFetchingEnvironment dataFetchingEnvironment) {
+   public NewsResponse updateNews(@Valid NewsRequest newsRequest, final DataFetchingEnvironment dataFetchingEnvironment) {
        DefaultGraphQLServletContext context = dataFetchingEnvironment.getContext();
 
        HttpServletRequest httpServletRequest = context.getHttpServletRequest();
@@ -87,14 +86,12 @@ public class NewsMutationResolver implements GraphQLMutationResolver {
 
 //           newsValidator.validateMultipartFile(fileInputWithPart, httpServletRequest);
            languageValidator.languageValidateChecker(newsRequest);
-           newsCommandService.updateNews(newsRequest, fileInputWithPart);
-           return "updated";
+           return newsCommandService.updateNews(newsRequest, fileInputWithPart);
        } else {
            FileInputMapper fileInputMapper = new FileInputMapper(newsRequest, Map.of());
            FileInputWithPart fileInputWithPart = fileInputMapper.getFileInputWithPart();
            languageValidator.languageValidateChecker(newsRequest);
-           newsCommandService.updateNews(newsRequest, fileInputWithPart);
-           return "updated";
+           return newsCommandService.updateNews(newsRequest, fileInputWithPart);
        }
    }
 }

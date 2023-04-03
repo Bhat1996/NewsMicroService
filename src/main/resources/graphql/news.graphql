@@ -8,7 +8,7 @@ type Mutation{
     deleteNews(id:String):String
     publishNews(newsId:String):NewsResponse
     publishAndNotify(newsId:String):NewsResponse
-    updateNews(newsRequest:NewsRequest):String
+    updateNews(newsRequest:NewsRequest):NewsResponse
     deleteFile(fileId:String):String
 }
 
