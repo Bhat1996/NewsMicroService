@@ -70,6 +70,10 @@ public class NewsMutationResolver implements GraphQLMutationResolver {
         return newsCommandService.deleteNews(id);
    }
 
+   public String deleteFile(@NotBlank String fileId){
+        return newsCommandService.deleteFiles(fileId);
+   }
+
    public String updateNews(@Valid NewsRequest newsRequest, final DataFetchingEnvironment dataFetchingEnvironment) {
        DefaultGraphQLServletContext context = dataFetchingEnvironment.getContext();
 

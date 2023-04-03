@@ -163,7 +163,7 @@ public class NewsCommandService {
         FileDto fileDto = fileDtoService.getFileDto(fileInputWithPart);
         News newsForSaving = newsRequestResponseMapper.updateNews(news, newsRequest);
 
-        Action<News> action = (arangoDatabase, transactionId) ->{
+        Action<News> action = (arangoDatabase, transactionId) -> {
             News savedNews = newsRepository.updateNews(arangoDatabase, transactionId, newsForSaving);
             List<File> savedFiles =
                     fileRepository.saveFiles(arangoDatabase, transactionId, getAllFilesToSave(fileDto));
@@ -175,7 +175,7 @@ public class NewsCommandService {
                 return newsHasFile;
             }).toList();
             newsHasFiles.forEach(newsHasFile -> newsHasFileRepository.saveNewsHasFileEdge(arangoDatabase,
-                    transactionId,newsHasFile));
+                    transactionId, newsHasFile));
             return savedNews;
         };
 
@@ -262,5 +262,13 @@ public class NewsCommandService {
         return "deleted";
     }
 
+    public String deleteFiles(String id) {
+        File file = fileRepository.getFile(id);
+        file.setStatus(Status.DELETED);
+        Action<File> action = (arangoDatabase, transactionId) ->
+                fileRepository.updateFile(arangoDatabase, transactionId, file);
+        File savedFile = transactionalWrapper.executeInsideTransaction(Set.of("files"), action);
+        return "deleted";
+    }
 
 }

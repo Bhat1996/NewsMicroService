@@ -1,5 +1,6 @@
 package com.example.NewsComponent.domain.vertex;
 
+import com.example.NewsComponent.enums.Status;
 import com.example.NewsComponent.metadata.VertexName;
 import com.arangodb.springframework.annotation.ArangoId;
 import com.arangodb.springframework.annotation.Document;
@@ -24,6 +25,7 @@ public class File {
     private String arangoId;
     private Map<String, String> seoTag;
     private Map<String, String> imageTitle;
+    private Status status;
     private String fileName;
     private String fileKey;
     private String fileType;

@@ -101,7 +101,7 @@ public class NewsQueryGenerator {
                                            ${villageIds}
                                            ${status}
                                            ${dateFilter}
-                        LIMIT 0, 10
+                        LIMIT ${skip}, ${limit}
                         RETURN doc)
                                 
                        
@@ -172,7 +172,7 @@ public class NewsQueryGenerator {
         queryParams.put("newsStatus", newsStatus.toString());
 
         String replace = new StringSubstitutor(queryParams).replace(query);
-        System.out.println(replace);
+        //System.out.println(replace);
         return replace;
     }
 

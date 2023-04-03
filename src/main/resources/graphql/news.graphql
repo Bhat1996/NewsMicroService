@@ -9,6 +9,7 @@ type Mutation{
     publishNews(newsId:String):NewsResponse
     publishAndNotify(newsId:String):NewsResponse
     updateNews(newsRequest:NewsRequest):String
+    deleteFile(fileId:String):String
 }
 
 type  Query{

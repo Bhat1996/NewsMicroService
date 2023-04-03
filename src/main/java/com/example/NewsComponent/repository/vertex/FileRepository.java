@@ -2,6 +2,7 @@ package com.example.NewsComponent.repository.vertex;
 
 import com.arangodb.entity.MultiDocumentEntity;
 import com.example.NewsComponent.dto.internal.FileResults;
+import com.example.NewsComponent.exceptions.ResourceNotFoundException;
 import com.example.NewsComponent.utils.ArangoIdUtils;
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDatabase;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static com.example.NewsComponent.metadata.VertexName.FILE;
@@ -98,6 +100,32 @@ public class FileRepository {
         return "FILTER file." + keyOrId + " == '" + fileId + "'";
     }
 
+    public File getFile(String id) {
+        String query = """
+                FOR file IN files
+                filter file._key=="${fileId}"
+                filter file.status!= "DELETED";
+                return file
+                """;
+        Map<String, String> template = new HashMap<>();
+        template.put("fileId", id);
+        StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
+        String finalQuery = stringSubstitutor.replace(query);
+        ArangoCursor<File> cursor = arangoOperations.query(finalQuery, File.class);
+        try (cursor) {
+            Optional<File> optional = cursor.stream().findFirst();
+            if (optional.isPresent()) {
+                return optional.get();
+            } else {
+                throw new ResourceNotFoundException("file not found ");
+            }
+
+        } catch (IOException ioException) {
+            throw new RuntimeException(ioException);
+        }
+
+    }
+
     public File deleteFile(ArangoDatabase arangoDatabase, String transactionId, String mediaId) {
         String queryTemplate = """
                 FOR file IN ${files}
@@ -125,7 +153,7 @@ public class FileRepository {
     }
 
     @SneakyThrows
-    public List<FileResults> getFiles(List<String> ids) {
+    public List<FileResults> getFilesOfNews(List<String> ids) {
         String query = """
                 FOR doc IN news
                 FILTER doc._key in ${keys}
@@ -186,17 +214,17 @@ public class FileRepository {
 
         Map<String, String> template = new HashMap<>();
         template.put("cloudFrontUrl", cloudFrontUrl);
-        template.put("keys", objectMapper.writeValueAsString(ids) );
+        template.put("keys", objectMapper.writeValueAsString(ids));
 
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         String replace = stringSubstitutor.replace(query);
 
         ArangoCursor<FileResults> cursor = arangoOperations.query(replace, FileResults.class);
-       try(cursor){
-           return cursor.asListRemaining();
-       }catch(IOException e){
-           throw new RuntimeException(e);
-       }
+        try (cursor) {
+            return cursor.asListRemaining();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 }
