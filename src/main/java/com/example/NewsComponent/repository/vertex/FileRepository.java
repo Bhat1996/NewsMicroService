@@ -162,6 +162,7 @@ public class FileRepository {
                         OUTBOUND doc
                         newsHasFile
                         FILTER file.fileType == 'image'
+                        FILTER file.status!="DELETED"
                         RETURN {
                             id: file._key,
                             url: CONCAT('${cloudFrontUrl}', "/", file.fileKey),
@@ -173,6 +174,7 @@ public class FileRepository {
                         OUTBOUND doc
                         newsHasFile
                         FILTER file.fileType == 'video'
+                        FILTER file.status!="DELETED"
                         RETURN {
                             id: file._key,
                             url: CONCAT('${cloudFrontUrl}', "/", file.fileKey),
@@ -185,6 +187,7 @@ public class FileRepository {
                         OUTBOUND doc
                         newsHasFile
                         FILTER file.fileType == 'audio'
+                        FILTER file.status!="DELETED"
                         RETURN {
                             id: file._key,
                             url: CONCAT('${cloudFrontUrl}', "/", file.fileKey),
@@ -197,6 +200,7 @@ public class FileRepository {
                         OUTBOUND doc
                         newsHasFile
                         FILTER file.fileType == 'document'
+                        FILTER file.status!="DELETED"
                         RETURN {
                             id: file._key,
                             url: CONCAT('${cloudFrontUrl}', "/", file.fileKey),
