@@ -39,6 +39,7 @@ input NewsRequest{
     description:Object
     slugTitle:Object
     newsStatus : NewsStatus
+    status:Status
     hashTagIds:[String]
     remarks:String
     interestIds:[String]
@@ -71,6 +72,7 @@ type NewsResponse{
     description:Object
     slugTitle:Object
     newsStatus: NewsStatus
+    status:Status
     hashTagIds:[String]
     remarks:String
     interestIds:[String]
