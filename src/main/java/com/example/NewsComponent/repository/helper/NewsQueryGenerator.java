@@ -92,7 +92,7 @@ public class NewsQueryGenerator {
                         LET finalCount=(
                                            ${uniqueSortedListBasedOnScore}
                     FILTER doc.newsStatus == '${newsStatus}'
-                        SORT doc.newsPublishDate ASC
+                        SORT doc.newsPublishDate ${order}
                                            ${languageFilter}
                                            ${countryIds}
                                            ${stateIds}
@@ -100,7 +100,7 @@ public class NewsQueryGenerator {
                                            ${tehsilIds}
                                            ${villageIds}
                                            ${status}
-                                           ${dateFilter}
+                                           ${dateFilter} 
                         LIMIT ${skip}, ${limit}
                         RETURN doc)
                                 

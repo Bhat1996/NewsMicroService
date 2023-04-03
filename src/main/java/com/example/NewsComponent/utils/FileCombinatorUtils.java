@@ -4,6 +4,7 @@ import com.example.NewsComponent.domain.vertex.File;
 import com.example.NewsComponent.dto.request.FileDto;
 import com.example.NewsComponent.dto.request.FileKeyWithOriginalName;
 import com.example.NewsComponent.enums.FileType;
+import com.example.NewsComponent.enums.Status;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,7 @@ public final class FileCombinatorUtils {
                     file.setFileKey(fileKeyWithOriginalName.fileKey());
                     file.setFileName(fileKeyWithOriginalName.fileOriginalName());
                     file.setFileType(fileType.getType());
+                    file.setStatus(Status.ACTIVE);
                     return file;
                 }).toList();
     }
