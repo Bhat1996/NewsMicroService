@@ -9,9 +9,9 @@ public class EdgeName {
     public static final String NEWS_IS_FOR_LOCATION = "newsIsForLocation";
     public static final String NEWS_HAS_INTEREST = "newsHasInterest";
     public static final String NEWS_HAS_HASHTAG = "newsHasHashTag";
-
     public static final String NEWS_HAS_FILE = "newsHasFile";
 
+    public static final String NEWS_LIKED_BY = "newsLikedBy";
 
     public static List<String> namesAsList() {
         Class<EdgeName> edgeNameClass = EdgeName.class;

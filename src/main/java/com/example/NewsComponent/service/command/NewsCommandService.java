@@ -1,10 +1,7 @@
 package com.example.NewsComponent.service.command;
 
 import com.example.NewsComponent.domain.News;
-import com.example.NewsComponent.domain.edge.NewsHasFile;
-import com.example.NewsComponent.domain.edge.NewsHasHashTag;
-import com.example.NewsComponent.domain.edge.NewsHasInterest;
-import com.example.NewsComponent.domain.edge.NewsIsForLocation;
+import com.example.NewsComponent.domain.edge.*;
 import com.example.NewsComponent.domain.vertex.File;
 import com.example.NewsComponent.dto.request.FileDto;
 import com.example.NewsComponent.dto.request.FileInputWithPart;
@@ -16,12 +13,10 @@ import com.example.NewsComponent.mapper.NewsRequestResponseMapper;
 import com.example.NewsComponent.metadata.EdgeName;
 import com.example.NewsComponent.metadata.VertexName;
 import com.example.NewsComponent.repository.NewsRepository;
-import com.example.NewsComponent.repository.edge.NewsHasFileRepository;
-import com.example.NewsComponent.repository.edge.NewsHasHashTagRepository;
-import com.example.NewsComponent.repository.edge.NewsHasInterestRepository;
-import com.example.NewsComponent.repository.edge.NewsIsForLocationRepository;
+import com.example.NewsComponent.repository.edge.*;
 import com.example.NewsComponent.repository.vertex.FileRepository;
 import com.example.NewsComponent.service.external.NotificationService;
+import com.example.NewsComponent.service.external.UserService;
 import com.example.NewsComponent.service.helper.FileDtoService;
 import com.example.NewsComponent.service.transaction.Action;
 import com.example.NewsComponent.service.transaction.TransactionalWrapper;
@@ -53,6 +48,9 @@ public class NewsCommandService {
     private final NewsRequestResponseMapper newsRequestResponseMapper;
     private final NewsHasFileRepository newsHasFileRepository;
     private final FileResponseMapper fileResponseMapper;
+
+    private  final UserService userService;
+    private  final NewsLikedByRepository newsLikedByRepository;
 
 
     //TODO media and s3
@@ -257,11 +255,12 @@ public class NewsCommandService {
         news.setStatus(Status.DELETED);
         Action<News> action = (arangoDatabase, transactionId) ->
                 newsRepository.updateNews(arangoDatabase, transactionId, news);
-         transactionalWrapper.executeInsideTransaction(Set.of("news"), action);
+        transactionalWrapper.executeInsideTransaction(Set.of("news"), action);
         return "deleted";
     }
 
     public String deleteFiles(String id) {
+
         File file = fileRepository.getFile(id);
         file.setStatus(Status.DELETED);
         Action<File> action = (arangoDatabase, transactionId) ->
@@ -270,4 +269,24 @@ public class NewsCommandService {
         return "deleted";
     }
 
+    public Boolean likeNews(String newsId){
+        News newsById = newsRepository.getNewsById(newsId);
+        String idOfCurrentUser = userService.getIdOfCurrentUser();
+        NewsLikedBy newsLikedBy = new NewsLikedBy();
+        newsLikedBy.set_from(newsById.getId());
+        newsLikedBy.set_to(idOfCurrentUser);
+        Action<NewsLikedBy> action=(arangoDatabase, transactionId) -> newsLikedByRepository.
+                saveNewsLikedByEdge(arangoDatabase,transactionId,newsLikedBy);
+        transactionalWrapper.executeInsideTransaction(Set.of("newsLikedBy"),action);
+        return true;
+    }
+
+//    public Boolean saveComment(String newsId){
+//        News newsById = newsRepository.getNewsById(newsId);
+//        String idOfCurrentUser = userService.getIdOfCurrentUser();
+//    }
+//
+//    public Boolean saveReply(){
+//
+//    }
 }
