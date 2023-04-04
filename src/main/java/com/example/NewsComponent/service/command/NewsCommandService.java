@@ -309,5 +309,4 @@ public class NewsCommandService {
         return transactionalWrapper.executeInsideTransaction(Set.of(NEWS_COMMENTS, NEWS_HAS_COMMENT), action);
     }
 
-
 }
