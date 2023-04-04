@@ -16,6 +16,7 @@ public class VertexName {
     public static final String VILLAGE = "villages";
     public  static final String NEWS ="news";
     public static final String FILE = "files";
+    public static final String NEWS_COMMENTS = "newsComments";
 
     public static List<String> namesAsList() {
         Class<VertexName> vertexNameClass = VertexName.class;

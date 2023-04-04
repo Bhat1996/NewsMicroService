@@ -3,6 +3,8 @@ package com.example.NewsComponent.service.command;
 import com.example.NewsComponent.domain.News;
 import com.example.NewsComponent.domain.edge.*;
 import com.example.NewsComponent.domain.vertex.File;
+import com.example.NewsComponent.domain.vertex.NewsComments;
+import com.example.NewsComponent.dto.request.CommentRequest;
 import com.example.NewsComponent.dto.request.FileDto;
 import com.example.NewsComponent.dto.request.FileInputWithPart;
 import com.example.NewsComponent.dto.response.NewsResponse;
@@ -15,6 +17,7 @@ import com.example.NewsComponent.metadata.VertexName;
 import com.example.NewsComponent.repository.NewsRepository;
 import com.example.NewsComponent.repository.edge.*;
 import com.example.NewsComponent.repository.vertex.FileRepository;
+import com.example.NewsComponent.repository.vertex.NewsCommentsRepository;
 import com.example.NewsComponent.service.external.NotificationService;
 import com.example.NewsComponent.service.external.UserService;
 import com.example.NewsComponent.service.helper.FileDtoService;
@@ -30,7 +33,10 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static com.example.NewsComponent.metadata.EdgeName.NEWS_HAS_COMMENT;
+import static com.example.NewsComponent.metadata.EdgeName.NEWS_LIKED_BY;
 import static com.example.NewsComponent.metadata.VertexName.FILE;
+import static com.example.NewsComponent.metadata.VertexName.NEWS_COMMENTS;
 import static com.example.NewsComponent.utils.FileCombinatorUtils.getAllFilesToSave;
 
 @Service
@@ -48,10 +54,10 @@ public class NewsCommandService {
     private final NewsRequestResponseMapper newsRequestResponseMapper;
     private final NewsHasFileRepository newsHasFileRepository;
     private final FileResponseMapper fileResponseMapper;
-    private  final UserService userService;
-    private  final NewsLikedByRepository newsLikedByRepository;
-
-    private  final NewsHasCommentRepository newsHasCommentRepository;
+    private final UserService userService;
+    private final NewsLikedByRepository newsLikedByRepository;
+    private final NewsHasCommentRepository newsHasCommentRepository;
+    private final NewsCommentsRepository newsCommentsRepository;
 
 
     //TODO media and s3
@@ -270,35 +276,38 @@ public class NewsCommandService {
         return "deleted";
     }
 
-    public Boolean likeNews(String newsId){
+    // TODO: 04-04-2023 count no of likes
+    public Boolean likeNews(String newsId) {
         News newsById = newsRepository.getNewsById(newsId);
         String idOfCurrentUser = userService.getIdOfCurrentUser();
         NewsLikedBy newsLikedBy = new NewsLikedBy();
         newsLikedBy.set_from(newsById.getId());
         newsLikedBy.set_to(idOfCurrentUser);
-        Action<NewsLikedBy> action=(arangoDatabase, transactionId) -> newsLikedByRepository
-                .saveNewsLikedByEdge(arangoDatabase,transactionId,newsLikedBy);
-        transactionalWrapper.executeInsideTransaction(Set.of("newsLikedBy"),action);
+        Action<NewsLikedBy> action = (arangoDatabase, transactionId) -> newsLikedByRepository
+                .saveNewsLikedByEdge(arangoDatabase, transactionId, newsLikedBy);
+        transactionalWrapper.executeInsideTransaction(Set.of(NEWS_LIKED_BY), action);
         return true;
     }
 
-    public Boolean saveComment(String newsId){
-        News newsById = newsRepository.getNewsById(newsId);
+    public Boolean saveComment(CommentRequest commentRequest) {
+        News newsById = newsRepository.getNewsById(commentRequest.getNewsId());
         String idOfCurrentUser = userService.getIdOfCurrentUser();
-        NewsHasComment newsHasComment = new NewsHasComment();
-        newsHasComment.set_from(newsById.getId());
-        newsHasComment.set_to(idOfCurrentUser);
-        Action<NewsHasComment> action=(arangoDatabase, transactionId) ->newsHasCommentRepository
-                .saveNewsHasCommentEdge(arangoDatabase,transactionId,newsHasComment);
-        transactionalWrapper.executeInsideTransaction(Set.of("newsHasComment"),action);
-        return  true;
+
+        NewsComments newsComments = new NewsComments();
+        newsComments.setText(commentRequest.getText());
+        newsComments.setCreatedDate(LocalDateTime.now());
+
+        Action<Boolean> action = (arangoDatabase, transactionId) -> {
+            NewsComments saveNewsComments = newsCommentsRepository.saveNewsComments(arangoDatabase,
+                    transactionId, newsComments);
+            NewsHasComment newsHasComment = new NewsHasComment();
+            newsHasComment.set_from(newsById.getId());
+            newsHasComment.set_to(saveNewsComments.getId());
+            newsHasCommentRepository.saveNewsHasCommentEdge(arangoDatabase, transactionId, newsHasComment);
+            return true;
+        };
+        return transactionalWrapper.executeInsideTransaction(Set.of(NEWS_COMMENTS, NEWS_HAS_COMMENT), action);
     }
 
-    public Boolean saveReply(String newsId){
-        News newsById = newsRepository.getNewsById(newsId);
-        String idOfCurrentUser = userService.getIdOfCurrentUser();
-        CommentHasReply commentHasReply = new CommentHasReply();
 
-        return null;
-    }
 }
