@@ -48,9 +48,10 @@ public class NewsCommandService {
     private final NewsRequestResponseMapper newsRequestResponseMapper;
     private final NewsHasFileRepository newsHasFileRepository;
     private final FileResponseMapper fileResponseMapper;
-
     private  final UserService userService;
     private  final NewsLikedByRepository newsLikedByRepository;
+
+    private  final NewsHasCommentRepository newsHasCommentRepository;
 
 
     //TODO media and s3
@@ -275,18 +276,29 @@ public class NewsCommandService {
         NewsLikedBy newsLikedBy = new NewsLikedBy();
         newsLikedBy.set_from(newsById.getId());
         newsLikedBy.set_to(idOfCurrentUser);
-        Action<NewsLikedBy> action=(arangoDatabase, transactionId) -> newsLikedByRepository.
-                saveNewsLikedByEdge(arangoDatabase,transactionId,newsLikedBy);
+        Action<NewsLikedBy> action=(arangoDatabase, transactionId) -> newsLikedByRepository
+                .saveNewsLikedByEdge(arangoDatabase,transactionId,newsLikedBy);
         transactionalWrapper.executeInsideTransaction(Set.of("newsLikedBy"),action);
         return true;
     }
 
-//    public Boolean saveComment(String newsId){
-//        News newsById = newsRepository.getNewsById(newsId);
-//        String idOfCurrentUser = userService.getIdOfCurrentUser();
-//    }
-//
-//    public Boolean saveReply(){
-//
-//    }
+    public Boolean saveComment(String newsId){
+        News newsById = newsRepository.getNewsById(newsId);
+        String idOfCurrentUser = userService.getIdOfCurrentUser();
+        NewsHasComment newsHasComment = new NewsHasComment();
+        newsHasComment.set_from(newsById.getId());
+        newsHasComment.set_to(idOfCurrentUser);
+        Action<NewsHasComment> action=(arangoDatabase, transactionId) ->newsHasCommentRepository
+                .saveNewsHasCommentEdge(arangoDatabase,transactionId,newsHasComment);
+        transactionalWrapper.executeInsideTransaction(Set.of("newsHasComment"),action);
+        return  true;
+    }
+
+    public Boolean saveReply(String newsId){
+        News newsById = newsRepository.getNewsById(newsId);
+        String idOfCurrentUser = userService.getIdOfCurrentUser();
+        CommentHasReply commentHasReply = new CommentHasReply();
+
+        return null;
+    }
 }

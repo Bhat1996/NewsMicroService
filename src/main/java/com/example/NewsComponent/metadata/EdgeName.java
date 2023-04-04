@@ -13,6 +13,11 @@ public class EdgeName {
 
     public static final String NEWS_LIKED_BY = "newsLikedBy";
 
+    public static final String NEWS_HAS_COMMENT = "newsHasComment";
+
+    public static final String COMMENT_HAS_REPLY = "commentHasReply";
+
+
     public static List<String> namesAsList() {
         Class<EdgeName> edgeNameClass = EdgeName.class;
         Field[] declaredFields = edgeNameClass.getDeclaredFields();
