@@ -42,7 +42,7 @@ public class NewsCommentsRepository {
     public NewsComments getComment(String id){
         String query= """
                 FOR doc IN ${NewsComments}
-                FILTER doc._key=${id}
+                FILTER doc._key=='${id}'
                 RETURN doc
                 """;
         Map<String,String> template=new HashMap<>();
