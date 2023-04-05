@@ -289,7 +289,7 @@ public class NewsCommandService {
 
     public Boolean saveComment(CommentRequest commentRequest) {
         News newsById = newsRepository.getNewsById(commentRequest.getId());
-        String idOfCurrentUser = userService.getIdOfCurrentUser();
+      //  String idOfCurrentUser = userService.getIdOfCurrentUser();
 
         NewsComments newsComments = new NewsComments();
         newsComments.setText(commentRequest.getText());
@@ -299,8 +299,8 @@ public class NewsCommandService {
             NewsComments saveNewsComments = newsCommentsRepository.saveNewsComments(arangoDatabase,
                     transactionId, newsComments);
             NewsHasComment newsHasComment = new NewsHasComment();
-            newsHasComment.set_from(newsById.getId());
-            newsHasComment.set_to(saveNewsComments.getId());
+            newsHasComment.set_from(newsById.getArangoId());
+            newsHasComment.set_to(saveNewsComments.getArangoId());
             newsHasCommentRepository.saveNewsHasCommentEdge(arangoDatabase, transactionId, newsHasComment);
             return true;
         };

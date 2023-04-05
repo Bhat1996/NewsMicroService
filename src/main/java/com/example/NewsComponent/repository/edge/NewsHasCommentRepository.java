@@ -8,10 +8,12 @@ import com.arangodb.velocypack.VPackSlice;
 import com.example.NewsComponent.domain.edge.NewsHasComment;
 import org.springframework.stereotype.Repository;
 
+import static com.example.NewsComponent.metadata.EdgeName.NEWS_HAS_COMMENT;
+
 @Repository
 public class NewsHasCommentRepository {
 
-    private  final ArangoConverter arangoConverter;
+    private final ArangoConverter arangoConverter;
 
     public NewsHasCommentRepository(ArangoConverter arangoConverter) {
         this.arangoConverter = arangoConverter;
@@ -19,10 +21,10 @@ public class NewsHasCommentRepository {
 
     public NewsHasComment saveNewsHasCommentEdge(ArangoDatabase arangoDatabase,
                                                  String transactionId,
-                                                 NewsHasComment newsHasComment){
-        DocumentCreateEntity<VPackSlice> createEntity = arangoDatabase.collection("newsHasComment")
+                                                 NewsHasComment newsHasComment) {
+        DocumentCreateEntity<VPackSlice> createEntity = arangoDatabase.collection(NEWS_HAS_COMMENT)
                 .insertDocument(arangoConverter.write(newsHasComment), new DocumentCreateOptions()
                         .streamTransactionId(transactionId).returnNew(true));
-       return  arangoConverter.read(NewsHasComment.class,createEntity.getNew());
+        return arangoConverter.read(NewsHasComment.class, createEntity.getNew());
     }
 }

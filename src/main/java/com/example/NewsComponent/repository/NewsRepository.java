@@ -49,7 +49,7 @@ public class NewsRepository {
     public News getNewsById(String id) {
         String query = """
                 FOR doc IN ${coll}
-                FILTERdoc._key == '${id}'
+                FILTER doc._key == '${id}'
                 RETURN doc
                 """;
         Map<String, String> queryFiller = Map.of(

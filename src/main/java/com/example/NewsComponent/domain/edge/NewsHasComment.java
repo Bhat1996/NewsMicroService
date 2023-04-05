@@ -7,9 +7,12 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
+
+import static com.example.NewsComponent.metadata.EdgeName.NEWS_HAS_COMMENT;
+
 @Getter
 @Setter
-@Edge("newsHasComment")
+@Edge(NEWS_HAS_COMMENT)
 public class NewsHasComment {
     @Id
     private String id;

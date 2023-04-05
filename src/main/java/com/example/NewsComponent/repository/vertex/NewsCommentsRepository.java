@@ -33,7 +33,7 @@ public class NewsCommentsRepository {
     public NewsComments saveNewsComments(ArangoDatabase arangoDatabase,
                                          String transactionId,
                                          NewsComments newsComments){
-        DocumentCreateEntity<VPackSlice> createEntity = arangoDatabase.collection("newsComments")
+        DocumentCreateEntity<VPackSlice> createEntity = arangoDatabase.collection(NEWS_COMMENTS)
                 .insertDocument(arangoConverter.write(newsComments), new DocumentCreateOptions()
                         .streamTransactionId(transactionId).returnNew(true));
         return  arangoConverter.read(NewsComments.class,createEntity.getNew());
