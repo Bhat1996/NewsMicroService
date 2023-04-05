@@ -279,8 +279,8 @@ public class NewsCommandService {
         News newsById = newsRepository.getNewsById(newsId);
         String idOfCurrentUser = userService.getIdOfCurrentUser();
         NewsLikedBy newsLikedBy = new NewsLikedBy();
-        newsLikedBy.set_from(newsById.getId());
-        newsLikedBy.set_to(idOfCurrentUser);
+        newsLikedBy.set_from(newsById.getArangoId());
+        newsLikedBy.set_to("users/"+idOfCurrentUser);
         Action<NewsLikedBy> action = (arangoDatabase, transactionId) -> newsLikedByRepository
                 .saveNewsLikedByEdge(arangoDatabase, transactionId, newsLikedBy);
         transactionalWrapper.executeInsideTransaction(Set.of(NEWS_LIKED_BY), action);
@@ -319,8 +319,8 @@ public class NewsCommandService {
                     newsCommentsRepository.saveNewsComments(arangoDatabase, transactionId, newsComments);
 
             CommentHasReply commentHasReply=new CommentHasReply();
-            commentHasReply.set_from(commentOnWhichReplyIsGiven.getId());
-            commentHasReply.set_to(saveNewsReply.getId());
+            commentHasReply.set_from(commentOnWhichReplyIsGiven.getArangoId());
+            commentHasReply.set_to(saveNewsReply.getArangoId());
             commentHasReplyRepository.saveCommentHasReplyEdge(arangoDatabase,transactionId,commentHasReply);
             return true;
         };
