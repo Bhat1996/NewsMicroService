@@ -103,9 +103,9 @@ public class FileRepository {
     public File getFile(String id) {
         String query = """
                 FOR file IN files
-                filter file._key=="${fileId}"
-                filter file.status!= "DELETED";
-                return file
+                FILTER file._key=="${fileId}"
+                FILTER file.status!= "DELETED"
+                RETURN file
                 """;
         Map<String, String> template = new HashMap<>();
         template.put("fileId", id);
