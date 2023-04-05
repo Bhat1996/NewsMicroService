@@ -25,16 +25,13 @@ import com.example.NewsComponent.service.transaction.Action;
 import com.example.NewsComponent.service.transaction.TransactionalWrapper;
 import com.example.NewsComponent.dto.request.NewsRequest;
 import com.example.NewsComponent.dto.internal.*;
-import graphql.analysis.QueryReducer;
 import lombok.AllArgsConstructor;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static com.example.NewsComponent.metadata.EdgeName.NEWS_HAS_COMMENT;
-import static com.example.NewsComponent.metadata.EdgeName.NEWS_LIKED_BY;
+import static com.example.NewsComponent.metadata.EdgeName.*;
 import static com.example.NewsComponent.metadata.VertexName.FILE;
 import static com.example.NewsComponent.metadata.VertexName.NEWS_COMMENTS;
 import static com.example.NewsComponent.utils.FileCombinatorUtils.getAllFilesToSave;
@@ -58,6 +55,7 @@ public class NewsCommandService {
     private final NewsLikedByRepository newsLikedByRepository;
     private final NewsHasCommentRepository newsHasCommentRepository;
     private final NewsCommentsRepository newsCommentsRepository;
+    private final CommentHasReplyRepository commentHasReplyRepository;
 
 
     //TODO media and s3
@@ -290,7 +288,7 @@ public class NewsCommandService {
     }
 
     public Boolean saveComment(CommentRequest commentRequest) {
-        News newsById = newsRepository.getNewsById(commentRequest.getNewsId());
+        News newsById = newsRepository.getNewsById(commentRequest.getId());
         String idOfCurrentUser = userService.getIdOfCurrentUser();
 
         NewsComments newsComments = new NewsComments();
@@ -307,6 +305,26 @@ public class NewsCommandService {
             return true;
         };
         return transactionalWrapper.executeInsideTransaction(Set.of(NEWS_COMMENTS, NEWS_HAS_COMMENT), action);
+    }
+
+    public Boolean saveReplyOnComment(CommentRequest commentRequest) {
+        NewsComments commentOnWhichReplyIsGiven = newsCommentsRepository.getComment(commentRequest.getId());
+
+        NewsComments newsComments = new NewsComments();
+        newsComments.setText(commentRequest.getText());
+        newsComments.setCreatedDate(LocalDateTime.now());
+
+        Action<Boolean> action=(arangoDatabase, transactionId) -> {
+            NewsComments saveNewsReply =
+                    newsCommentsRepository.saveNewsComments(arangoDatabase, transactionId, newsComments);
+
+            CommentHasReply commentHasReply=new CommentHasReply();
+            commentHasReply.set_from(commentOnWhichReplyIsGiven.getId());
+            commentHasReply.set_to(saveNewsReply.getId());
+            commentHasReplyRepository.saveCommentHasReplyEdge(arangoDatabase,transactionId,commentHasReply);
+            return true;
+        };
+       return transactionalWrapper.executeInsideTransaction(Set.of(NEWS_COMMENTS,COMMENT_HAS_REPLY),action);
     }
 
 }

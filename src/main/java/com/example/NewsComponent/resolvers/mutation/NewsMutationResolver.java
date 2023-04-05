@@ -1,5 +1,6 @@
 package com.example.NewsComponent.resolvers.mutation;
 
+import com.example.NewsComponent.dto.request.CommentRequest;
 import com.example.NewsComponent.dto.response.NewsResponse;
 import com.example.NewsComponent.validations.LanguageValidator;
 import com.example.NewsComponent.dto.request.FileInputWithPart;
@@ -73,6 +74,7 @@ public class NewsMutationResolver implements GraphQLMutationResolver {
         return newsCommandService.deleteFiles(fileId);
    }
 
+
    public NewsResponse updateNews(@Valid NewsRequest newsRequest, final DataFetchingEnvironment dataFetchingEnvironment) {
        DefaultGraphQLServletContext context = dataFetchingEnvironment.getContext();
 
@@ -94,4 +96,17 @@ public class NewsMutationResolver implements GraphQLMutationResolver {
            return newsCommandService.updateNews(newsRequest, fileInputWithPart);
        }
    }
+
+   public Boolean likeNews(String newsId){
+        return newsCommandService.likeNews(newsId);
+   }
+
+   public Boolean saveComment(CommentRequest commentRequest){
+        return newsCommandService.saveComment(commentRequest);
+   }
+
+   public Boolean saveReplyOnComment(CommentRequest commentRequest){
+        return newsCommandService.saveReplyOnComment(commentRequest);
+   }
+
 }

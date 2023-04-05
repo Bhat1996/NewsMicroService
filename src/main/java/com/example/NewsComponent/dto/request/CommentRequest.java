@@ -1,7 +1,6 @@
 package com.example.NewsComponent.dto.request;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
@@ -10,7 +9,7 @@ import javax.validation.constraints.NotBlank;
 @Setter
 public class CommentRequest {
     @NotBlank
-    private String newsId;
+    private String id;
     @NotBlank
     private String text;
 }

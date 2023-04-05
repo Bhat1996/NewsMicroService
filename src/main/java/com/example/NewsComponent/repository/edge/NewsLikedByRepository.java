@@ -39,6 +39,7 @@ public class NewsLikedByRepository {
 
     }
 
+    // TODO: 05-04-2023 use it
     public Long countNumberOfLikes(String id){
         String query= """
                 FOR doc IN ${newsLikedBy}

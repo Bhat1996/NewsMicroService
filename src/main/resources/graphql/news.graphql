@@ -10,11 +10,18 @@ type Mutation{
     publishAndNotify(newsId:String):NewsResponse
     updateNews(newsRequest:NewsRequest):NewsResponse
     deleteFile(fileId:String):String
+    likeNews(newsId:String):Boolean
+    saveComment(commentRequest:CommentRequest):Boolean
+    saveReplyOnComment(commentRequest:CommentRequest):Boolean
 }
 
 type  Query{
     getAllNews(newsStatus:NewsStatus, paginationFilter:
     PaginationFilter, newsFilter:NewsFilter ):PaginationResponse
+}
+input CommentRequest{
+    id:String!
+    text:String!
 }
 
 input NewsFilter{
