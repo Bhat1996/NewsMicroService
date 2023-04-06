@@ -7,9 +7,12 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
+
+import static com.example.NewsComponent.metadata.EdgeName.COMMENT_HAS_REPLY;
+
 @Getter
 @Setter
-@Edge("commentHasReply")
+@Edge(COMMENT_HAS_REPLY)
 public class CommentHasReply {
     @Id
     private String id;

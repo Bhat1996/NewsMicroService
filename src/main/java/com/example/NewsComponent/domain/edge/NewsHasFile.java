@@ -10,9 +10,11 @@ import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 
+import static com.example.NewsComponent.metadata.EdgeName.NEWS_HAS_FILE;
+
 @Getter
 @Setter
-@Edge("newsHasFile")
+@Edge(NEWS_HAS_FILE)
 public class NewsHasFile {
     @Id
     private String id;

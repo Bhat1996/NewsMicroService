@@ -58,7 +58,7 @@ public class NewsCommandService {
     private final CommentHasReplyRepository commentHasReplyRepository;
 
 
-    //TODO media and s3
+
     public NewsResponse saveNewsResponse(NewsRequest newsRequest, FileInputWithPart fileInputWithPart) {
         News newsForSaving = newsRequestResponseMapper.getNewsForSaving(newsRequest);
         FileDto fileDto = fileDtoService.getFileDto(fileInputWithPart);

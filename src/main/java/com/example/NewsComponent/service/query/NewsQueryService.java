@@ -18,7 +18,6 @@ public class NewsQueryService {
         this.newsRepository = newsRepository;
     }
 
-    // TODO: 27-03-2023 update with media in get
     public Pagination<NewsResponse> getAllNews(NewsStatus newsStatus,
                                                PaginationFilter paginationFilter,
                                                NewsFilter newsFilter) {
