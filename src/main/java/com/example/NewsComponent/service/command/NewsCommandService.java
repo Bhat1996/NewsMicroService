@@ -32,8 +32,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.example.NewsComponent.metadata.EdgeName.*;
-import static com.example.NewsComponent.metadata.VertexName.FILE;
-import static com.example.NewsComponent.metadata.VertexName.NEWS_COMMENTS;
+import static com.example.NewsComponent.metadata.VertexName.*;
 import static com.example.NewsComponent.utils.FileCombinatorUtils.getAllFilesToSave;
 
 @Service
@@ -56,6 +55,7 @@ public class NewsCommandService {
     private final NewsHasCommentRepository newsHasCommentRepository;
     private final NewsCommentsRepository newsCommentsRepository;
     private final CommentHasReplyRepository commentHasReplyRepository;
+    private  final NewsSharedByRepository newsSharedByRepository;
 
 
     public NewsResponse saveNewsResponse(NewsRequest newsRequest, FileInputWithPart fileInputWithPart) {
@@ -326,4 +326,19 @@ public class NewsCommandService {
        return transactionalWrapper.executeInsideTransaction(Set.of(NEWS_COMMENTS,COMMENT_HAS_REPLY),action);
     }
 
+    public NewsSharedBy saveNewsSharedBy(String id){
+        News newsById = newsRepository.getNewsById(id);
+        String idOfCurrentUser = userService.getIdOfCurrentUser();
+
+        NewsSharedBy newsSharedBy=new NewsSharedBy();
+        newsSharedBy.set_from(newsById.getArangoId());
+        newsSharedBy.set_to(NEWS+"/"+idOfCurrentUser);
+
+        Action<NewsSharedBy> action=(arangoDatabase, transactionId) -> {
+            NewsSharedBy newsSharedByEdge =
+                    newsSharedByRepository.saveNewsSharedByEdge(arangoDatabase, transactionId, newsSharedBy);
+            return newsSharedByEdge;
+        };
+     return   transactionalWrapper.executeInsideTransaction(Set.of(NEWS_SHARED_BY),action);
+    }
 }
