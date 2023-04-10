@@ -64,6 +64,12 @@ public class NewsCommandService {
     @Value("${reward.service.onLikeNews}")
     private String rewardServiceEndPointOnLikeNews;
 
+    @Value("${reward.service.onCommentNews}")
+    private String rewardServiceEndPointOnCommentNews;
+
+    @Value("${reward.service.onShareNews}")
+    private String rewardServiceEndPointOnShareNews;
+
 
     public NewsResponse saveNewsResponse(NewsRequest newsRequest, FileInputWithPart fileInputWithPart) {
         News newsForSaving = newsRequestResponseMapper.getNewsForSaving(newsRequest);
@@ -285,7 +291,7 @@ public class NewsCommandService {
         String idOfCurrentUser = userService.getIdOfCurrentUser();
         NewsLikedBy newsLikedBy = new NewsLikedBy();
         newsLikedBy.set_from(newsById.getArangoId());
-        newsLikedBy.set_to("users/" + idOfCurrentUser);
+        newsLikedBy.set_to(USER +"/"+ idOfCurrentUser);
         Action<Boolean> action = (arangoDatabase, transactionId) -> {
             newsLikedByRepository
                     .saveNewsLikedByEdge(arangoDatabase, transactionId, newsLikedBy);
@@ -317,7 +323,7 @@ public class NewsCommandService {
             replyGivenByUser.set_from(saveNewsComments.getArangoId());
             replyGivenByUser.set_to(USER+"/"+idOfCurrentUser);
             commentHasReplyRepository.saveReplyGivenByUser(arangoDatabase,transactionId,replyGivenByUser);
-
+            triggerRewardServiceOnComment(newsById.getId(),idOfCurrentUser);
             return true;
         };
         return transactionalWrapper.executeInsideTransaction(Set.of(NEWS_COMMENTS, NEWS_HAS_COMMENT), action);
@@ -361,6 +367,7 @@ public class NewsCommandService {
 
         Action<Boolean> action = (arangoDatabase, transactionId) -> {
             newsSharedByRepository.saveNewsSharedByEdge(arangoDatabase, transactionId, newsSharedBy);
+            triggerRewardServiceOnShare(newsById.getId(),idOfCurrentUser);
             return true;
         };
         transactionalWrapper.executeInsideTransaction(Set.of(NEWS_SHARED_BY), action);
@@ -372,5 +379,13 @@ public class NewsCommandService {
                 userService.getTokenOfCurrentUser(),rewardServiceEndPointOnLikeNews);
     }
 
+    public void triggerRewardServiceOnComment(String newsId,String userId){
+        rewardService.triggerRewardService(newsId,userId,
+                userService.getTokenOfCurrentUser(),rewardServiceEndPointOnCommentNews);
+    }
+    public void triggerRewardServiceOnShare(String newsId,String userId){
+        rewardService.triggerRewardService(newsId,userId,
+                userService.getTokenOfCurrentUser(),rewardServiceEndPointOnShareNews);
+    }
 
 }
