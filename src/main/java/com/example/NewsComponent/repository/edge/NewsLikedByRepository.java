@@ -1,5 +1,6 @@
 package com.example.NewsComponent.repository.edge;
 
+import com.amazonaws.util.json.Jackson;
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.entity.DocumentCreateEntity;
@@ -8,13 +9,12 @@ import com.arangodb.springframework.core.ArangoOperations;
 import com.arangodb.springframework.core.convert.ArangoConverter;
 import com.arangodb.velocypack.VPackSlice;
 import com.example.NewsComponent.domain.edge.NewsLikedBy;
+import com.example.NewsComponent.dto.internal.LikesDto;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.example.NewsComponent.metadata.EdgeName.NEWS_LIKED_BY;
 import static com.example.NewsComponent.metadata.VertexName.NEWS;
@@ -39,25 +39,34 @@ public class NewsLikedByRepository {
 
     }
 
-    // TODO: 05-04-2023 use it
-    public Long countNumberOfLikes(String id){
+    // TODO: 05-04-2023 use it and check
+    public List<LikesDto> countNumberOfLikes(Set<String> ids){
         String query= """
-                FOR doc IN ${newsLikedBy}
-                FILTER doc._from==${id}
-                COLLECT WITH COUNT INTO total
-                return total
+                FOR doc IN ${NEWS}
+                FILTER doc._key IN ${ids}
+                   LET value = (
+                        FOR v in 1..1
+                        OUTBOUND doc
+                       ${newsLikedBy}
+                        return true
+                   )
+                   FILTER length(value) > 0
+                   RETURN {
+                        id: doc._key,
+                        total: length(value)
+                   }
                 """;
         Map<String,String> template=new HashMap<>();
-        template.put("newsLikedBy",NEWS_LIKED_BY);
-        template.put("id", NEWS+"/"+id);
+        template.put("newsLikedBy", NEWS_LIKED_BY);
+        template.put("NEWS", NEWS);
+        template.put("ids", Jackson.toJsonString(ids));
 
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         String finalQuery = stringSubstitutor.replace(query);
-        ArangoCursor<Long> cursor = arangoOperations.query(finalQuery, Long.class);
+        ArangoCursor<LikesDto> cursor = arangoOperations.query(finalQuery, LikesDto.class);
 
         try(cursor){
-            Optional<Long> optional = cursor.stream().findFirst();
-            return optional.orElse(0L);
+            return cursor.asListRemaining();
         }catch (IOException ioException){
             throw new RuntimeException(ioException);
         }
