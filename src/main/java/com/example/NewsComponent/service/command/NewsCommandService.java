@@ -32,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.example.NewsComponent.metadata.EdgeName.*;
+import static com.example.NewsComponent.metadata.ExternalVertex.USER;
 import static com.example.NewsComponent.metadata.VertexName.*;
 import static com.example.NewsComponent.utils.FileCombinatorUtils.getAllFilesToSave;
 
@@ -333,7 +334,7 @@ public class NewsCommandService {
 
         NewsSharedBy newsSharedBy = new NewsSharedBy();
         newsSharedBy.set_from(newsById.getArangoId());
-        newsSharedBy.set_to(NEWS + "/" + idOfCurrentUser);
+        newsSharedBy.set_to(USER + "/" + idOfCurrentUser);
 
         Action<NewsSharedBy> action = (arangoDatabase, transactionId) -> {
             return newsSharedByRepository.saveNewsSharedByEdge(arangoDatabase, transactionId, newsSharedBy);
