@@ -255,7 +255,6 @@ public class NewsCommandService {
     }
 
     public String deleteNews(String id) {
-
         News news = newsRepository.getNewsById(id);
         news.setStatus(Status.DELETED);
         Action<News> action = (arangoDatabase, transactionId) ->
@@ -289,7 +288,7 @@ public class NewsCommandService {
 
     public Boolean saveComment(CommentRequest commentRequest) {
         News newsById = newsRepository.getNewsById(commentRequest.getId());
-        //  String idOfCurrentUser = userService.getIdOfCurrentUser();
+        String idOfCurrentUser = userService.getIdOfCurrentUser();
 
         NewsComments newsComments = new NewsComments();
         newsComments.setText(commentRequest.getText());
@@ -302,6 +301,12 @@ public class NewsCommandService {
             newsHasComment.set_from(newsById.getArangoId());
             newsHasComment.set_to(saveNewsComments.getArangoId());
             newsHasCommentRepository.saveNewsHasCommentEdge(arangoDatabase, transactionId, newsHasComment);
+
+            ReplyGivenByUser replyGivenByUser = new ReplyGivenByUser();
+            replyGivenByUser.set_from(saveNewsComments.getArangoId());
+            replyGivenByUser.set_to(USER+"/"+idOfCurrentUser);
+            commentHasReplyRepository.saveReplyGivenByUser(arangoDatabase,transactionId,replyGivenByUser);
+
             return true;
         };
         return transactionalWrapper.executeInsideTransaction(Set.of(NEWS_COMMENTS, NEWS_HAS_COMMENT), action);
@@ -309,10 +314,11 @@ public class NewsCommandService {
 
     public Boolean saveReplyOnComment(CommentRequest commentRequest) {
         NewsComments commentOnWhichReplyIsGiven = newsCommentsRepository.getComment(commentRequest.getId());
-
+        String idOfCurrentUser = userService.getIdOfCurrentUser();
         NewsComments newsComments = new NewsComments();
         newsComments.setText(commentRequest.getText());
         newsComments.setCreatedDate(LocalDateTime.now());
+
 
         Action<Boolean> action = (arangoDatabase, transactionId) -> {
             NewsComments saveNewsReply =
@@ -321,13 +327,19 @@ public class NewsCommandService {
             CommentHasReply commentHasReply = new CommentHasReply();
             commentHasReply.set_from(commentOnWhichReplyIsGiven.getArangoId());
             commentHasReply.set_to(saveNewsReply.getArangoId());
+
+            ReplyGivenByUser replyGivenByUser = new ReplyGivenByUser();
+            replyGivenByUser.set_from(saveNewsReply.getArangoId());
+            replyGivenByUser.set_to(USER+"/"+idOfCurrentUser);
+
+            commentHasReplyRepository.saveReplyGivenByUser(arangoDatabase,transactionId,replyGivenByUser);
             commentHasReplyRepository.saveCommentHasReplyEdge(arangoDatabase, transactionId, commentHasReply);
             return true;
         };
         return transactionalWrapper.executeInsideTransaction(Set.of(NEWS_COMMENTS, COMMENT_HAS_REPLY), action);
     }
 
-    public NewsSharedBy saveNewsSharedBy(String id) {
+    public Boolean saveNewsSharedBy(String id) {
 
         News newsById = newsRepository.getNewsById(id);
         String idOfCurrentUser = userService.getIdOfCurrentUser();
@@ -336,9 +348,13 @@ public class NewsCommandService {
         newsSharedBy.set_from(newsById.getArangoId());
         newsSharedBy.set_to(USER + "/" + idOfCurrentUser);
 
-        Action<NewsSharedBy> action = (arangoDatabase, transactionId) -> {
-            return newsSharedByRepository.saveNewsSharedByEdge(arangoDatabase, transactionId, newsSharedBy);
+        Action<Boolean> action = (arangoDatabase, transactionId) -> {
+            newsSharedByRepository.saveNewsSharedByEdge(arangoDatabase, transactionId, newsSharedBy);
+            return true;
         };
-        return transactionalWrapper.executeInsideTransaction(Set.of(NEWS_SHARED_BY), action);
+        transactionalWrapper.executeInsideTransaction(Set.of(NEWS_SHARED_BY), action);
+        return true;
     }
+
+
 }

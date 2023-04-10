@@ -22,4 +22,8 @@ public class NewsQueryResolver implements GraphQLQueryResolver {
                                                NewsFilter newsFilter){
         return newsQueryService.getAllNews(newsStatus, paginationFilter, newsFilter);
     }
+
+    public NewsResponse getNewsById(String id){
+        return newsQueryService.getNewsById(id);
+    }
 }

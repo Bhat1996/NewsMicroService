@@ -1,5 +1,6 @@
-package com.example.NewsComponent.resolvers.query.mutation;
+package com.example.NewsComponent.resolvers.mutation;
 
+import com.example.NewsComponent.domain.edge.NewsSharedBy;
 import com.example.NewsComponent.dto.request.CommentRequest;
 import com.example.NewsComponent.dto.response.NewsResponse;
 import com.example.NewsComponent.validations.LanguageValidator;
@@ -107,6 +108,9 @@ public class NewsMutationResolver implements GraphQLMutationResolver {
 
    public Boolean saveReplyOnComment(CommentRequest commentRequest){
         return newsCommandService.saveReplyOnComment(commentRequest);
+   }
+   public Boolean saveNewsSharedBy(String id){
+        return  newsCommandService.saveNewsSharedBy(id);
    }
 
 }

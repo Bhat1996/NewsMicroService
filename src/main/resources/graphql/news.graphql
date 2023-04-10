@@ -13,11 +13,14 @@ type Mutation{
     likeNews(newsId:String):Boolean
     saveComment(commentRequest:CommentRequest):Boolean
     saveReplyOnComment(commentRequest:CommentRequest):Boolean
+    saveNewsSharedBy(id:String):Boolean
 }
 
 type  Query{
     getAllNews(newsStatus:NewsStatus, paginationFilter:
     PaginationFilter, newsFilter:NewsFilter ):PaginationResponse
+
+    getNewsById(id:String):NewsResponse
 }
 input CommentRequest{
     id:String!

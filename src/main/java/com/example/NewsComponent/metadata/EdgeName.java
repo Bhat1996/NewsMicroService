@@ -14,6 +14,10 @@ public class EdgeName {
     public static final String NEWS_HAS_COMMENT = "newsHasComment";
     public static final String COMMENT_HAS_REPLY = "commentHasReply";
     public static final String NEWS_SHARED_BY = "newsSharedBy";
+    public static final String REPLY_GIVEN_BY_USER = "replyGivenByUser";
+    public static final String LIKE_GIVEN_BY_USER = "likeGivenByUser";
+
+
 
 
     public static List<String> namesAsList() {
