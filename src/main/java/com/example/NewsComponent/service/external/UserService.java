@@ -51,7 +51,7 @@ public class UserService {
         return data.get("getIdOfUser");
     }
 
-    private synchronized String getTokenOfCurrentUser() {
+    public synchronized String getTokenOfCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         KeycloakPrincipal<?> keycloakPrincipal = (KeycloakPrincipal<?>) principal;
         KeycloakSecurityContext keycloakSecurityContext = keycloakPrincipal.getKeycloakSecurityContext();

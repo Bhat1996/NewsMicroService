@@ -19,6 +19,7 @@ import com.example.NewsComponent.repository.edge.*;
 import com.example.NewsComponent.repository.vertex.FileRepository;
 import com.example.NewsComponent.repository.vertex.NewsCommentsRepository;
 import com.example.NewsComponent.service.external.NotificationService;
+import com.example.NewsComponent.service.external.RewardService;
 import com.example.NewsComponent.service.external.UserService;
 import com.example.NewsComponent.service.helper.FileDtoService;
 import com.example.NewsComponent.service.transaction.Action;
@@ -26,6 +27,7 @@ import com.example.NewsComponent.service.transaction.TransactionalWrapper;
 import com.example.NewsComponent.dto.request.NewsRequest;
 import com.example.NewsComponent.dto.internal.*;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -57,6 +59,10 @@ public class NewsCommandService {
     private final NewsCommentsRepository newsCommentsRepository;
     private final CommentHasReplyRepository commentHasReplyRepository;
     private final NewsSharedByRepository newsSharedByRepository;
+    private  final RewardService rewardService;
+
+    @Value("${reward.service.onLikeNews}")
+    private String rewardServiceEndPointOnLikeNews;
 
 
     public NewsResponse saveNewsResponse(NewsRequest newsRequest, FileInputWithPart fileInputWithPart) {
@@ -280,9 +286,14 @@ public class NewsCommandService {
         NewsLikedBy newsLikedBy = new NewsLikedBy();
         newsLikedBy.set_from(newsById.getArangoId());
         newsLikedBy.set_to("users/" + idOfCurrentUser);
-        Action<NewsLikedBy> action = (arangoDatabase, transactionId) -> newsLikedByRepository
-                .saveNewsLikedByEdge(arangoDatabase, transactionId, newsLikedBy);
+        Action<Boolean> action = (arangoDatabase, transactionId) -> {
+            newsLikedByRepository
+                    .saveNewsLikedByEdge(arangoDatabase, transactionId, newsLikedBy);
+            triggerRewardServiceOnLike(newsById.getId(), idOfCurrentUser);
+            return true;
+        };
         transactionalWrapper.executeInsideTransaction(Set.of(NEWS_LIKED_BY), action);
+
         return true;
     }
 
@@ -354,6 +365,11 @@ public class NewsCommandService {
         };
         transactionalWrapper.executeInsideTransaction(Set.of(NEWS_SHARED_BY), action);
         return true;
+    }
+
+    public void triggerRewardServiceOnLike(String newsId,String userId){
+        rewardService.triggerRewardService(newsId,userId,
+                userService.getTokenOfCurrentUser(),rewardServiceEndPointOnLikeNews);
     }
 
 
