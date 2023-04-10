@@ -2,9 +2,6 @@ package com.example.NewsComponent.service.external;
 
 import com.example.NewsComponent.dto.response.GraphqlResponseMapper;
 import com.example.NewsComponent.utils.GraphqlResponseErrorUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
-import org.apache.commons.text.StringSubstitutor;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.springframework.core.ParameterizedTypeReference;
@@ -16,18 +13,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 @Service
 public class UserService {
     private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
 
-    public UserService(final RestTemplate restTemplate, ObjectMapper objectMapper) {
+    public UserService(final RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        this.objectMapper = objectMapper;
     }
 
     public String getIdOfCurrentUser() {

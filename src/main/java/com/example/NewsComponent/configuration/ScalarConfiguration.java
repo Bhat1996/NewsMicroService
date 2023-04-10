@@ -1,6 +1,5 @@
 package com.example.NewsComponent.configuration;
 
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import graphql.kickstart.servlet.apollo.ApolloScalars;
 import graphql.scalars.ExtendedScalars;
 import graphql.schema.GraphQLScalarType;

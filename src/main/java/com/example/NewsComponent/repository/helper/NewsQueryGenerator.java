@@ -98,7 +98,7 @@ public class NewsQueryGenerator {
                                            ${tehsilIds}
                                            ${villageIds}
                                            ${status}
-                                           ${dateFilter} 
+                                           ${dateFilter}
                         LIMIT ${skip}, ${limit}
                         RETURN doc)
                                 

@@ -55,7 +55,7 @@ public class NewsCommandService {
     private final NewsHasCommentRepository newsHasCommentRepository;
     private final NewsCommentsRepository newsCommentsRepository;
     private final CommentHasReplyRepository commentHasReplyRepository;
-    private  final NewsSharedByRepository newsSharedByRepository;
+    private final NewsSharedByRepository newsSharedByRepository;
 
 
     public NewsResponse saveNewsResponse(NewsRequest newsRequest, FileInputWithPart fileInputWithPart) {
@@ -180,7 +180,7 @@ public class NewsCommandService {
             return savedNews;
         };
 
-        News saveNews = transactionalWrapper.executeInsideTransaction(Set.of(NEWS,NEWS_HAS_FILE,FILE),
+        News saveNews = transactionalWrapper.executeInsideTransaction(Set.of(NEWS, NEWS_HAS_FILE, FILE),
                 action);
         NewsResponse newsResponse = newsRequestResponseMapper.getNewsResponse(saveNews);
         return fileResponseMapper.getNewsResponseWithFiles(saveNews.getId(), newsResponse);
@@ -279,7 +279,7 @@ public class NewsCommandService {
         String idOfCurrentUser = userService.getIdOfCurrentUser();
         NewsLikedBy newsLikedBy = new NewsLikedBy();
         newsLikedBy.set_from(newsById.getArangoId());
-        newsLikedBy.set_to("users/"+idOfCurrentUser);
+        newsLikedBy.set_to("users/" + idOfCurrentUser);
         Action<NewsLikedBy> action = (arangoDatabase, transactionId) -> newsLikedByRepository
                 .saveNewsLikedByEdge(arangoDatabase, transactionId, newsLikedBy);
         transactionalWrapper.executeInsideTransaction(Set.of(NEWS_LIKED_BY), action);
@@ -288,7 +288,7 @@ public class NewsCommandService {
 
     public Boolean saveComment(CommentRequest commentRequest) {
         News newsById = newsRepository.getNewsById(commentRequest.getId());
-      //  String idOfCurrentUser = userService.getIdOfCurrentUser();
+        //  String idOfCurrentUser = userService.getIdOfCurrentUser();
 
         NewsComments newsComments = new NewsComments();
         newsComments.setText(commentRequest.getText());
@@ -313,31 +313,31 @@ public class NewsCommandService {
         newsComments.setText(commentRequest.getText());
         newsComments.setCreatedDate(LocalDateTime.now());
 
-        Action<Boolean> action=(arangoDatabase, transactionId) -> {
+        Action<Boolean> action = (arangoDatabase, transactionId) -> {
             NewsComments saveNewsReply =
                     newsCommentsRepository.saveNewsComments(arangoDatabase, transactionId, newsComments);
 
-            CommentHasReply commentHasReply=new CommentHasReply();
+            CommentHasReply commentHasReply = new CommentHasReply();
             commentHasReply.set_from(commentOnWhichReplyIsGiven.getArangoId());
             commentHasReply.set_to(saveNewsReply.getArangoId());
-            commentHasReplyRepository.saveCommentHasReplyEdge(arangoDatabase,transactionId,commentHasReply);
+            commentHasReplyRepository.saveCommentHasReplyEdge(arangoDatabase, transactionId, commentHasReply);
             return true;
         };
-       return transactionalWrapper.executeInsideTransaction(Set.of(NEWS_COMMENTS,COMMENT_HAS_REPLY),action);
+        return transactionalWrapper.executeInsideTransaction(Set.of(NEWS_COMMENTS, COMMENT_HAS_REPLY), action);
     }
 
-    public NewsSharedBy saveNewsSharedBy(String id){
+    public NewsSharedBy saveNewsSharedBy(String id) {
 
         News newsById = newsRepository.getNewsById(id);
         String idOfCurrentUser = userService.getIdOfCurrentUser();
 
-        NewsSharedBy newsSharedBy=new NewsSharedBy();
+        NewsSharedBy newsSharedBy = new NewsSharedBy();
         newsSharedBy.set_from(newsById.getArangoId());
-        newsSharedBy.set_to(NEWS+"/"+idOfCurrentUser);
+        newsSharedBy.set_to(NEWS + "/" + idOfCurrentUser);
 
-        Action<NewsSharedBy> action=(arangoDatabase, transactionId) -> {
+        Action<NewsSharedBy> action = (arangoDatabase, transactionId) -> {
             return newsSharedByRepository.saveNewsSharedByEdge(arangoDatabase, transactionId, newsSharedBy);
         };
-     return   transactionalWrapper.executeInsideTransaction(Set.of(NEWS_SHARED_BY),action);
+        return transactionalWrapper.executeInsideTransaction(Set.of(NEWS_SHARED_BY), action);
     }
 }
