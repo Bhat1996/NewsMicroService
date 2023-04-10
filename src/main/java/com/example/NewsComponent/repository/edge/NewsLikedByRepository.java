@@ -50,7 +50,7 @@ public class NewsLikedByRepository {
                        ${newsLikedBy}
                         return true
                    )
-                   FILTER length(value) > 0
+                   
                    RETURN {
                         id: doc._key,
                         total: length(value)
