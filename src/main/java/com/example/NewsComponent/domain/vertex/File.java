@@ -23,7 +23,7 @@ public class File {
     private String id;
     @ArangoId
     private String arangoId;
-    private Map<String, String> seoTag;
+    //private Map<String, String> seoTag;
     private Map<String, String> imageTitle;
     private Status status;
     private String fileName;
