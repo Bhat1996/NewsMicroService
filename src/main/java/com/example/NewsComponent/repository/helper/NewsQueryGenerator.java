@@ -35,80 +35,41 @@ public class NewsQueryGenerator {
 
 
     public String getQuery(NewsFilter newsFilter, PaginationFilter paginationFilter, NewsStatus newsStatus) {
-//        String query = """
-//                ${uniqueSortedListBasedOnScore}
-//                FILTER doc.newsStatus == '${newsStatus}'
-//                LET list = (
-//
-//                    ${languageFilter}
-//                    ${countryIds}
-//                    ${stateIds}
-//                    ${districtIds}
-//                    ${tehsilIds}
-//                    ${villageIds}
-//                    ${status}
-//                    ${dateFilter}
-//                    SORT doc.newsPublishDate ${order}
-//                    LIMIT ${skip}, ${limit}
-//                    RETURN doc
-//                )
-//                LET total = (
-//
-//                    ${languageFilter}
-//                    ${countryIds}
-//                    ${stateIds}
-//                    ${districtIds}
-//                    ${tehsilIds}
-//                    ${villageIds}
-//                    ${status}
-//                    ${dateFilter}
-//                    COLLECT WITH COUNT INTO size
-//                    RETURN size
-//                )
-//
-//                RETURN {
-//                    list: list,
-//                    total: first(total)
-//                }
-//                """;
-        String query = """
-                               
-                 LET total = (
-                                           ${uniqueSortedListBasedOnScore}
+
+        String query = """             
+                LET total = (
+                    ${uniqueSortedListBasedOnScore}
                     FILTER doc.newsStatus == '${newsStatus}'
-                                          ${languageFilter}
-                                          ${countryIds}
-                                          ${stateIds}
-                                          ${districtIds}
-                                          ${tehsilIds}
-                                          ${villageIds}
-                                          ${status}
-                                          ${dateFilter}
-                        COLLECT WITH COUNT INTO size
-                        RETURN size
+                    ${languageFilter}
+                    ${countryIds}
+                    ${stateIds}
+                    ${districtIds}
+                    ${tehsilIds}
+                    ${villageIds}
+                    ${status}
+                    ${dateFilter}
+                    COLLECT WITH COUNT INTO size
+                    RETURN size
                 )
-                        LET finalCount=(
-                                           ${uniqueSortedListBasedOnScore}
+                LET finalCount=(
+                    ${uniqueSortedListBasedOnScore}
                     FILTER doc.newsStatus == '${newsStatus}'
-                        SORT doc.newsPublishDate ${order}
-                                           ${languageFilter}
-                                           ${countryIds}
-                                           ${stateIds}
-                                           ${districtIds}
-                                           ${tehsilIds}
-                                           ${villageIds}
-                                           ${status}
-                                           ${dateFilter}
-                        LIMIT ${skip}, ${limit}
-                        RETURN doc)
-                                
-                       
-                        RETURN {
-                         
-                            list:finalCount,
-                            total: first(total)
-                        }
-                                
+                    SORT doc.newsPublishDate ${order}
+                    ${languageFilter}
+                    ${countryIds}
+                    ${stateIds}
+                    ${districtIds}
+                    ${tehsilIds}
+                    ${villageIds}
+                    ${status}
+                    ${dateFilter}
+                    LIMIT ${skip}, ${limit}
+                    RETURN doc
+                )
+                RETURN {
+                    list:finalCount,
+                    total: first(total)
+                }
                 """;
 
 
