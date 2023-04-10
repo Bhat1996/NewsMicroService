@@ -26,7 +26,6 @@ import com.example.NewsComponent.service.transaction.Action;
 import com.example.NewsComponent.service.transaction.TransactionalWrapper;
 import com.example.NewsComponent.dto.request.NewsRequest;
 import com.example.NewsComponent.dto.internal.*;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +38,6 @@ import static com.example.NewsComponent.metadata.VertexName.*;
 import static com.example.NewsComponent.utils.FileCombinatorUtils.getAllFilesToSave;
 
 @Service
-@AllArgsConstructor
 public class NewsCommandService {
 
     private final NewsRepository newsRepository;
@@ -59,7 +57,7 @@ public class NewsCommandService {
     private final NewsCommentsRepository newsCommentsRepository;
     private final CommentHasReplyRepository commentHasReplyRepository;
     private final NewsSharedByRepository newsSharedByRepository;
-    private  final RewardService rewardService;
+    private final RewardService rewardService;
 
     @Value("${reward.service.onLikeNews}")
     private String rewardServiceEndPointOnLikeNews;
@@ -69,6 +67,44 @@ public class NewsCommandService {
 
     @Value("${reward.service.onShareNews}")
     private String rewardServiceEndPointOnShareNews;
+
+    public NewsCommandService(NewsRepository newsRepository,
+                              FileDtoService fileDtoService,
+                              NewsHasInterestRepository newsHasInterestRepository,
+                              NewsHasHashTagRepository newsHasHashTagRepository,
+                              NotificationService notificationService,
+                              TransactionalWrapper transactionalWrapper,
+                              NewsIsForLocationRepository newsIsForLocationRepository,
+                              FileRepository fileRepository,
+                              NewsRequestResponseMapper newsRequestResponseMapper,
+                              NewsHasFileRepository newsHasFileRepository,
+                              FileResponseMapper fileResponseMapper,
+                              UserService userService,
+                              NewsLikedByRepository newsLikedByRepository,
+                              NewsHasCommentRepository newsHasCommentRepository,
+                              NewsCommentsRepository newsCommentsRepository,
+                              CommentHasReplyRepository commentHasReplyRepository,
+                              NewsSharedByRepository newsSharedByRepository,
+                              RewardService rewardService) {
+        this.newsRepository = newsRepository;
+        this.fileDtoService = fileDtoService;
+        this.newsHasInterestRepository = newsHasInterestRepository;
+        this.newsHasHashTagRepository = newsHasHashTagRepository;
+        this.notificationService = notificationService;
+        this.transactionalWrapper = transactionalWrapper;
+        this.newsIsForLocationRepository = newsIsForLocationRepository;
+        this.fileRepository = fileRepository;
+        this.newsRequestResponseMapper = newsRequestResponseMapper;
+        this.newsHasFileRepository = newsHasFileRepository;
+        this.fileResponseMapper = fileResponseMapper;
+        this.userService = userService;
+        this.newsLikedByRepository = newsLikedByRepository;
+        this.newsHasCommentRepository = newsHasCommentRepository;
+        this.newsCommentsRepository = newsCommentsRepository;
+        this.commentHasReplyRepository = commentHasReplyRepository;
+        this.newsSharedByRepository = newsSharedByRepository;
+        this.rewardService = rewardService;
+    }
 
 
     public NewsResponse saveNewsResponse(NewsRequest newsRequest, FileInputWithPart fileInputWithPart) {
@@ -291,7 +327,7 @@ public class NewsCommandService {
         String idOfCurrentUser = userService.getIdOfCurrentUser();
         NewsLikedBy newsLikedBy = new NewsLikedBy();
         newsLikedBy.set_from(newsById.getArangoId());
-        newsLikedBy.set_to(USER +"/"+ idOfCurrentUser);
+        newsLikedBy.set_to(USER + "/" + idOfCurrentUser);
         Action<Boolean> action = (arangoDatabase, transactionId) -> {
             newsLikedByRepository
                     .saveNewsLikedByEdge(arangoDatabase, transactionId, newsLikedBy);
@@ -321,9 +357,9 @@ public class NewsCommandService {
 
             ReplyGivenByUser replyGivenByUser = new ReplyGivenByUser();
             replyGivenByUser.set_from(saveNewsComments.getArangoId());
-            replyGivenByUser.set_to(USER+"/"+idOfCurrentUser);
-            commentHasReplyRepository.saveReplyGivenByUser(arangoDatabase,transactionId,replyGivenByUser);
-            triggerRewardServiceOnComment(newsById.getId(),idOfCurrentUser);
+            replyGivenByUser.set_to(USER + "/" + idOfCurrentUser);
+            commentHasReplyRepository.saveReplyGivenByUser(arangoDatabase, transactionId, replyGivenByUser);
+            triggerRewardServiceOnComment(newsById.getId(), idOfCurrentUser);
             return true;
         };
         return transactionalWrapper.executeInsideTransaction(Set.of(NEWS_COMMENTS, NEWS_HAS_COMMENT), action);
@@ -347,9 +383,9 @@ public class NewsCommandService {
 
             ReplyGivenByUser replyGivenByUser = new ReplyGivenByUser();
             replyGivenByUser.set_from(saveNewsReply.getArangoId());
-            replyGivenByUser.set_to(USER+"/"+idOfCurrentUser);
+            replyGivenByUser.set_to(USER + "/" + idOfCurrentUser);
 
-            commentHasReplyRepository.saveReplyGivenByUser(arangoDatabase,transactionId,replyGivenByUser);
+            commentHasReplyRepository.saveReplyGivenByUser(arangoDatabase, transactionId, replyGivenByUser);
             commentHasReplyRepository.saveCommentHasReplyEdge(arangoDatabase, transactionId, commentHasReply);
             return true;
         };
@@ -367,25 +403,26 @@ public class NewsCommandService {
 
         Action<Boolean> action = (arangoDatabase, transactionId) -> {
             newsSharedByRepository.saveNewsSharedByEdge(arangoDatabase, transactionId, newsSharedBy);
-            triggerRewardServiceOnShare(newsById.getId(),idOfCurrentUser);
+            triggerRewardServiceOnShare(newsById.getId(), idOfCurrentUser);
             return true;
         };
         transactionalWrapper.executeInsideTransaction(Set.of(NEWS_SHARED_BY), action);
         return true;
     }
 
-    public void triggerRewardServiceOnLike(String newsId,String userId){
-        rewardService.triggerRewardService(newsId,userId,
-                userService.getTokenOfCurrentUser(),rewardServiceEndPointOnLikeNews);
+    public void triggerRewardServiceOnLike(String newsId, String userId) {
+        rewardService.triggerRewardService(newsId, userId,
+                userService.getTokenOfCurrentUser(), rewardServiceEndPointOnLikeNews);
     }
 
-    public void triggerRewardServiceOnComment(String newsId,String userId){
-        rewardService.triggerRewardService(newsId,userId,
-                userService.getTokenOfCurrentUser(),rewardServiceEndPointOnCommentNews);
+    public void triggerRewardServiceOnComment(String newsId, String userId) {
+        rewardService.triggerRewardService(newsId, userId,
+                userService.getTokenOfCurrentUser(), rewardServiceEndPointOnCommentNews);
     }
-    public void triggerRewardServiceOnShare(String newsId,String userId){
-        rewardService.triggerRewardService(newsId,userId,
-                userService.getTokenOfCurrentUser(),rewardServiceEndPointOnShareNews);
+
+    public void triggerRewardServiceOnShare(String newsId, String userId) {
+        rewardService.triggerRewardService(newsId, userId,
+                userService.getTokenOfCurrentUser(), rewardServiceEndPointOnShareNews);
     }
 
 }
