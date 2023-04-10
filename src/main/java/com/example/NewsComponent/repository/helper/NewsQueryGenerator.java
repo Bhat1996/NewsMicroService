@@ -1,14 +1,14 @@
 package com.example.NewsComponent.repository.helper;
 
-import com.example.NewsComponent.enums.NewsStatus;
-import com.example.NewsComponent.enums.Status;
+import com.amazonaws.util.json.Jackson;
 import com.arangodb.ArangoCursor;
 import com.arangodb.springframework.core.ArangoOperations;
 import com.example.NewsComponent.dto.internal.SearchTokenHelper;
 import com.example.NewsComponent.dto.request.DateFilter;
 import com.example.NewsComponent.dto.request.NewsFilter;
 import com.example.NewsComponent.dto.request.PaginationFilter;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.NewsComponent.enums.NewsStatus;
+import com.example.NewsComponent.enums.Status;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
@@ -26,8 +26,6 @@ import static com.example.NewsComponent.utils.Not.not;
 
 @Service
 public class NewsQueryGenerator {
-
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final ArangoOperations arangoOperations;
 
@@ -74,7 +72,7 @@ public class NewsQueryGenerator {
 //                }
 //                """;
         String query = """
-               
+                               
                  LET total = (
                                            ${uniqueSortedListBasedOnScore}
                     FILTER doc.newsStatus == '${newsStatus}'
@@ -171,9 +169,7 @@ public class NewsQueryGenerator {
         queryParams.put("limit", paginationFilter.getLimit().toString());
         queryParams.put("newsStatus", newsStatus.toString());
 
-        String replace = new StringSubstitutor(queryParams).replace(query);
-        //System.out.println(replace);
-        return replace;
+        return new StringSubstitutor(queryParams).replace(query);
     }
 
 
@@ -187,7 +183,7 @@ public class NewsQueryGenerator {
     @SneakyThrows
     public static String getCountryIds(Set<String> countryIds) {
         String query = "filter doc.countryIds any in ${value}";
-        Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(countryIds));
+        Map<String, String> template = Map.of("value", Jackson.toJsonString(countryIds));
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);
     }
@@ -195,7 +191,7 @@ public class NewsQueryGenerator {
     @SneakyThrows
     public static String getStateIds(Set<String> stateIds) {
         String query = "filter doc.stateIds any in ${value}";
-        Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(stateIds));
+        Map<String, String> template = Map.of("value", Jackson.toJsonString(stateIds));
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);
     }
@@ -203,7 +199,7 @@ public class NewsQueryGenerator {
     @SneakyThrows
     public static String getDistrictIds(Set<String> districtIds) {
         String query = "filter doc.districtIds any in ${value}";
-        Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(districtIds));
+        Map<String, String> template = Map.of("value", Jackson.toJsonString(districtIds));
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);
     }
@@ -211,7 +207,7 @@ public class NewsQueryGenerator {
     @SneakyThrows
     public static String getTehsilIds(Set<String> tehsilIds) {
         String query = "filter docs.tehsilIds any in ${value}";
-        Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(tehsilIds));
+        Map<String, String> template = Map.of("value", Jackson.toJsonString(tehsilIds));
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);
     }
@@ -219,7 +215,7 @@ public class NewsQueryGenerator {
     @SneakyThrows
     public static String getVillageIds(Set<String> villageIds) {
         String query = "filter doc.villageIds any in ${value}";
-        Map<String, String> template = Map.of("value", objectMapper.writeValueAsString(villageIds));
+        Map<String, String> template = Map.of("value", Jackson.toJsonString(villageIds));
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         return stringSubstitutor.replace(query);
     }

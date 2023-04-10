@@ -180,7 +180,7 @@ public class NewsCommandService {
             return savedNews;
         };
 
-        News saveNews = transactionalWrapper.executeInsideTransaction(Set.of("news", "newsHasFile", "files"),
+        News saveNews = transactionalWrapper.executeInsideTransaction(Set.of(NEWS,NEWS_HAS_FILE,FILE),
                 action);
         NewsResponse newsResponse = newsRequestResponseMapper.getNewsResponse(saveNews);
         return fileResponseMapper.getNewsResponseWithFiles(saveNews.getId(), newsResponse);
@@ -192,7 +192,7 @@ public class NewsCommandService {
         getNews.setNewsStatus(NewsStatus.PUBLISHED);
         Action<News> action = (arangoDatabase, transactionId) ->
                 newsRepository.updateNews(arangoDatabase, transactionId, getNews);
-        News savedNews = transactionalWrapper.executeInsideTransaction(Set.of("news"), action);
+        News savedNews = transactionalWrapper.executeInsideTransaction(Set.of(NEWS), action);
         return newsRequestResponseMapper.getNewsResponse(savedNews);
 
     }
@@ -259,7 +259,7 @@ public class NewsCommandService {
         news.setStatus(Status.DELETED);
         Action<News> action = (arangoDatabase, transactionId) ->
                 newsRepository.updateNews(arangoDatabase, transactionId, news);
-        transactionalWrapper.executeInsideTransaction(Set.of("news"), action);
+        transactionalWrapper.executeInsideTransaction(Set.of(NEWS), action);
         return "deleted";
     }
 
@@ -269,7 +269,7 @@ public class NewsCommandService {
         file.setStatus(Status.DELETED);
         Action<File> action = (arangoDatabase, transactionId) ->
                 fileRepository.updateFile(arangoDatabase, transactionId, file);
-        transactionalWrapper.executeInsideTransaction(Set.of("files"), action);
+        transactionalWrapper.executeInsideTransaction(Set.of(FILE), action);
         return "deleted";
     }
 
@@ -327,6 +327,7 @@ public class NewsCommandService {
     }
 
     public NewsSharedBy saveNewsSharedBy(String id){
+
         News newsById = newsRepository.getNewsById(id);
         String idOfCurrentUser = userService.getIdOfCurrentUser();
 
@@ -335,9 +336,7 @@ public class NewsCommandService {
         newsSharedBy.set_to(NEWS+"/"+idOfCurrentUser);
 
         Action<NewsSharedBy> action=(arangoDatabase, transactionId) -> {
-            NewsSharedBy newsSharedByEdge =
-                    newsSharedByRepository.saveNewsSharedByEdge(arangoDatabase, transactionId, newsSharedBy);
-            return newsSharedByEdge;
+            return newsSharedByRepository.saveNewsSharedByEdge(arangoDatabase, transactionId, newsSharedBy);
         };
      return   transactionalWrapper.executeInsideTransaction(Set.of(NEWS_SHARED_BY),action);
     }

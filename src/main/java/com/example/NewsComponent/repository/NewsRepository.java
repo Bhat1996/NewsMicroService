@@ -1,7 +1,5 @@
 package com.example.NewsComponent.repository;
 
-import com.example.NewsComponent.domain.News;
-import com.example.NewsComponent.dto.response.NewsResponse;
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.entity.DocumentCreateEntity;
@@ -11,8 +9,10 @@ import com.arangodb.model.DocumentUpdateOptions;
 import com.arangodb.springframework.core.ArangoOperations;
 import com.arangodb.springframework.core.convert.ArangoConverter;
 import com.arangodb.velocypack.VPackSlice;
+import com.example.NewsComponent.domain.News;
 import com.example.NewsComponent.dto.request.NewsFilter;
 import com.example.NewsComponent.dto.request.PaginationFilter;
+import com.example.NewsComponent.dto.response.NewsResponse;
 import com.example.NewsComponent.dto.response.PageInfo;
 import com.example.NewsComponent.dto.response.Pagination;
 import com.example.NewsComponent.dto.response.PaginationResponse;
@@ -21,7 +21,6 @@ import com.example.NewsComponent.exceptions.ResourceNotFoundException;
 import com.example.NewsComponent.mapper.FileResponseMapper;
 import com.example.NewsComponent.mapper.NewsRequestResponseMapper;
 import com.example.NewsComponent.repository.helper.NewsQueryGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.text.StringSubstitutor;
@@ -33,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.example.NewsComponent.metadata.VertexName.NEWS;
+
 @Repository
 @AllArgsConstructor
 public class NewsRepository {
@@ -41,8 +42,6 @@ public class NewsRepository {
     private final ArangoConverter arangoConverter;
     private final NewsRequestResponseMapper newsRequestResponseMapper;
     private final NewsQueryGenerator newsQueryGenerator;
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
     private final FileResponseMapper fileResponseMapper;
 
 
@@ -53,16 +52,21 @@ public class NewsRepository {
                 RETURN doc
                 """;
         Map<String, String> queryFiller = Map.of(
-                "coll", "news",
+                "coll", NEWS,
                 "id", id);
         String finalQuery = new StringSubstitutor(queryFiller).replace(query);
         ArangoCursor<News> cursor = arangoOperations.query(finalQuery, News.class);
-        Optional<News> first = cursor.stream().findFirst();
-        if (first.isPresent()) {
-            return first.get();
-        } else {
-            throw new RuntimeException("News with given id not found");
+        try (cursor) {
+            Optional<News> first = cursor.stream().findFirst();
+            if (first.isPresent()) {
+                return first.get();
+            } else {
+                throw new ResourceNotFoundException("News with given id not found");
+            }
+        } catch (IOException ioException) {
+            throw new RuntimeException(ioException);
         }
+
     }
 
     @SneakyThrows
@@ -94,7 +98,6 @@ public class NewsRepository {
                 }
                 return new Pagination<>(responseList, pageInfo);
             } else {
-                // TODO: 21-03-2023 give proper exception
                 throw new ResourceNotFoundException("No data found");
             }
         } catch (IOException ioException) {
@@ -104,7 +107,7 @@ public class NewsRepository {
 
     public News saveNews(ArangoDatabase arangoDatabase, String transactionId, News news) {
 
-        DocumentCreateEntity<VPackSlice> createEntity = arangoDatabase.collection("news")
+        DocumentCreateEntity<VPackSlice> createEntity = arangoDatabase.collection(NEWS)
                 .insertDocument(arangoConverter.write(news),
                         new DocumentCreateOptions()
                                 .streamTransactionId(transactionId)
@@ -113,7 +116,7 @@ public class NewsRepository {
     }
 
     public News updateNews(ArangoDatabase arangoDatabase, String transactionId, News news) {
-        DocumentUpdateEntity<VPackSlice> updatedNews = arangoDatabase.collection("news")
+        DocumentUpdateEntity<VPackSlice> updatedNews = arangoDatabase.collection(NEWS)
                 .updateDocument(news.getId(), arangoConverter.write(news),
                         new DocumentUpdateOptions()
                                 .streamTransactionId(transactionId).returnNew(true));

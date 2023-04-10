@@ -14,9 +14,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.example.NewsComponent.metadata.VertexName.NEWS;
+
 @Getter
 @Setter
-@Document("news")
+@Document(NEWS)
 public class News {
 
     @Id

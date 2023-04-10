@@ -22,7 +22,7 @@ import static com.example.NewsComponent.metadata.VertexName.NEWS_COMMENTS;
 @Repository
 public class NewsCommentsRepository {
 
-    private  final ArangoConverter arangoConverter;
+    private final ArangoConverter arangoConverter;
     private final ArangoOperations arangoOperations;
 
     public NewsCommentsRepository(ArangoConverter arangoConverter, ArangoOperations arangoOperations) {
@@ -32,35 +32,35 @@ public class NewsCommentsRepository {
 
     public NewsComments saveNewsComments(ArangoDatabase arangoDatabase,
                                          String transactionId,
-                                         NewsComments newsComments){
+                                         NewsComments newsComments) {
         DocumentCreateEntity<VPackSlice> createEntity = arangoDatabase.collection(NEWS_COMMENTS)
                 .insertDocument(arangoConverter.write(newsComments), new DocumentCreateOptions()
                         .streamTransactionId(transactionId).returnNew(true));
-        return  arangoConverter.read(NewsComments.class,createEntity.getNew());
+        return arangoConverter.read(NewsComments.class, createEntity.getNew());
     }
 
-    public NewsComments getComment(String id){
-        String query= """
+    public NewsComments getComment(String id) {
+        String query = """
                 FOR doc IN ${NewsComments}
                 FILTER doc._key=='${id}'
                 RETURN doc
                 """;
-        Map<String,String> template=new HashMap<>();
-        template.put("NewsComments",NEWS_COMMENTS);
-        template.put("id",id);
+        Map<String, String> template = new HashMap<>();
+        template.put("NewsComments", NEWS_COMMENTS);
+        template.put("id", id);
 
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         String finalQuery = stringSubstitutor.replace(query);
 
         ArangoCursor<NewsComments> cursor = arangoOperations.query(finalQuery, NewsComments.class);
-        try (cursor){
+        try (cursor) {
             Optional<NewsComments> optional = cursor.stream().findFirst();
-            if (optional.isPresent()){
+            if (optional.isPresent()) {
                 return optional.get();
-            }else {
+            } else {
                 throw new ResourceNotFoundException("news comment not found ");
             }
-        }catch (IOException ioException){
+        } catch (IOException ioException) {
             throw new RuntimeException(ioException);
         }
     }

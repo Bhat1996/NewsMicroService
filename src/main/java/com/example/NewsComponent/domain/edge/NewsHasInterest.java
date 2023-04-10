@@ -8,7 +8,9 @@ import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 
-@Edge("newsHasInterest")
+import static com.example.NewsComponent.metadata.EdgeName.NEWS_HAS_INTEREST;
+
+@Edge(NEWS_HAS_INTEREST)
 @Getter
 @Setter
 public class NewsHasInterest {

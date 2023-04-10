@@ -1,4 +1,4 @@
-package com.example.NewsComponent.resolvers.mutation;
+package com.example.NewsComponent.resolvers.query.mutation;
 
 import com.example.NewsComponent.dto.request.CommentRequest;
 import com.example.NewsComponent.dto.response.NewsResponse;
