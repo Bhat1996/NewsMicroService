@@ -17,6 +17,7 @@ import java.util.concurrent.Executors;
 public class DataLoaderRegistryFactory {
 
     public static final String NUMBER_OF_LIKES_LOADER = "NUMBER_OF_LIKES_LOADER ";
+    public static final String NUMBER_OF_COMMENTS_LOADER = "NUMBER_OF_COMMENTS_LOADER ";
     private static final Executor dataLoaderPool = new DelegatingSecurityContextExecutorService(
             Executors.newFixedThreadPool(
                     Runtime.getRuntime().availableProcessors()));
@@ -29,7 +30,17 @@ public class DataLoaderRegistryFactory {
     public DataLoaderRegistry create() {
         var dataLoaderRegistry = new DataLoaderRegistry();
         dataLoaderRegistry.register(NUMBER_OF_LIKES_LOADER, createLikesLoader());
+        dataLoaderRegistry.register(NUMBER_OF_COMMENTS_LOADER,createCommentsLoader());
         return dataLoaderRegistry;
+    }
+
+    private DataLoader<?,?> createCommentsLoader() {
+        final MappedBatchLoader<String, Long> mappedBatchLoader = keys ->
+                CompletableFuture.supplyAsync(
+                        () -> commonQueryService.getNumberOfComments(keys),
+                        dataLoaderPool
+                );
+        return DataLoaderFactory.newMappedDataLoader(mappedBatchLoader);
     }
 
     private DataLoader<String, Long> createLikesLoader() {

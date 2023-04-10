@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LikesDto {
+public class ResultDto {
     private String id;
     private Long total;
 }

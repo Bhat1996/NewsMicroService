@@ -9,7 +9,7 @@ import com.arangodb.springframework.core.ArangoOperations;
 import com.arangodb.springframework.core.convert.ArangoConverter;
 import com.arangodb.velocypack.VPackSlice;
 import com.example.NewsComponent.domain.edge.NewsLikedBy;
-import com.example.NewsComponent.dto.internal.LikesDto;
+import com.example.NewsComponent.dto.internal.ResultDto;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.stereotype.Repository;
 
@@ -40,7 +40,7 @@ public class NewsLikedByRepository {
     }
 
     // TODO: 05-04-2023 use it and check
-    public List<LikesDto> countNumberOfLikes(Set<String> ids){
+    public List<ResultDto> countNumberOfLikes(Set<String> ids){
         String query= """
                 FOR doc IN ${NEWS}
                 FILTER doc._key IN ${ids}
@@ -63,7 +63,7 @@ public class NewsLikedByRepository {
 
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         String finalQuery = stringSubstitutor.replace(query);
-        ArangoCursor<LikesDto> cursor = arangoOperations.query(finalQuery, LikesDto.class);
+        ArangoCursor<ResultDto> cursor = arangoOperations.query(finalQuery, ResultDto.class);
 
         try(cursor){
             return cursor.asListRemaining();

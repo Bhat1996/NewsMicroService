@@ -1,5 +1,6 @@
 package com.example.NewsComponent.repository.edge;
 
+import com.amazonaws.util.json.Jackson;
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.entity.DocumentCreateEntity;
@@ -8,13 +9,12 @@ import com.arangodb.springframework.core.ArangoOperations;
 import com.arangodb.springframework.core.convert.ArangoConverter;
 import com.arangodb.velocypack.VPackSlice;
 import com.example.NewsComponent.domain.edge.NewsHasComment;
+import com.example.NewsComponent.dto.internal.ResultDto;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.example.NewsComponent.metadata.EdgeName.NEWS_HAS_COMMENT;
 import static com.example.NewsComponent.metadata.VertexName.NEWS;
@@ -41,25 +41,33 @@ public class NewsHasCommentRepository {
     }
 
     // TODO: 06-04-2023 use it
-    public Long countNoOfComments(String id) {
+    public List<ResultDto> countNoOfComments(Set<String> ids) {
         String query = """
-                FOR doc IN ${newsHasComment}
-                FILTER doc._from==${id}
-                COLLECT WITH COUNT INTO total
-                return total
+              FOR doc IN ${NEWS}
+                FILTER doc._key IN ${ids}
+                   LET value = (
+                        FOR v in 1..1
+                        OUTBOUND doc
+                       ${newsHasComment}
+                        return true
+                   )
+                   
+                   RETURN {
+                        id: doc._key,
+                        total: length(value)
+                   }
                 """;
 
         Map<String, String> template = new HashMap<>();
         template.put("newsHasComment", NEWS_HAS_COMMENT);
-        template.put("id", NEWS + "/" + id);
+        template.put("ids", Jackson.toJsonString(ids));
 
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         String finalQuery = stringSubstitutor.replace(query);
-        ArangoCursor<Long> cursor = arangoOperations.query(finalQuery, Long.class);
+        ArangoCursor<ResultDto> cursor = arangoOperations.query(finalQuery, ResultDto.class);
 
         try (cursor) {
-            Optional<Long> optional = cursor.stream().findFirst();
-            return optional.orElse(0L);
+            return cursor.asListRemaining();
         } catch (IOException ioException) {
             throw new RuntimeException(ioException);
         }
