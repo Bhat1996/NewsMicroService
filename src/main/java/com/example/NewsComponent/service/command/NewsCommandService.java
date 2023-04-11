@@ -321,7 +321,6 @@ public class NewsCommandService {
         return "deleted";
     }
 
-    // TODO: 04-04-2023 count no of likes
     public Boolean likeNews(String newsId) {
         News newsById = newsRepository.getNewsById(newsId);
         String idOfCurrentUser = userService.getIdOfCurrentUser();
@@ -335,7 +334,6 @@ public class NewsCommandService {
             return true;
         };
         transactionalWrapper.executeInsideTransaction(Set.of(NEWS_LIKED_BY), action);
-
         return true;
     }
 
