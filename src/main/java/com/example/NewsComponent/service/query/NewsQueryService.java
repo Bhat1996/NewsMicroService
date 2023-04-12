@@ -11,6 +11,8 @@ import com.example.NewsComponent.dto.request.PaginationFilter;
 import com.example.NewsComponent.dto.response.Pagination;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 
 @Service
 public class NewsQueryService {
@@ -37,6 +39,10 @@ public class NewsQueryService {
         News newsById = newsRepository.getNewsById(id);
         NewsResponse newsResponse = newsRequestResponseMapper.getNewsResponse(newsById);
         return fileResponseMapper.getNewsResponseWithFiles(newsById.getId(), newsResponse);
+    }
+
+    public Pagination<NewsResponse> getNewsFromInterest(List<String> interestIds,PaginationFilter paginationFilter){
+        return newsRepository.getNewsFromInterests(interestIds, paginationFilter);
     }
 
 

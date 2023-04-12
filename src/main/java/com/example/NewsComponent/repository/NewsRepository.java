@@ -1,5 +1,6 @@
 package com.example.NewsComponent.repository;
 
+import com.amazonaws.util.json.Jackson;
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.entity.DocumentCreateEntity;
@@ -27,10 +28,7 @@ import org.apache.commons.text.StringSubstitutor;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.example.NewsComponent.metadata.VertexName.NEWS;
 
@@ -122,6 +120,71 @@ public class NewsRepository {
                                 .streamTransactionId(transactionId).returnNew(true));
         return arangoConverter.read(News.class, updatedNews.getNew());
 
+    }
+
+    public Pagination<NewsResponse> getNewsFromInterests(List<String> interestIds,PaginationFilter paginationFilter){
+
+        String query= """
+                Let list = (
+                FOR doc IN ${news}
+                FILTER doc.newsStatus == "PUBLISHED"
+                    FOR v in 1..1
+                    OUTBOUND doc
+                    newsHasInterest
+                    FILTER v._key in ${ids}
+                    LIMIT ${skip}, ${limit}
+                    SORT doc.publishedDate ${order}
+                    RETURN doc
+                )
+                LET total = (
+                    FOR doc IN ${news}
+                    FILTER doc.newsStatus == "PUBLISHED"
+                    FOR v in 1..1
+                    OUTBOUND doc
+                    newsHasInterest
+                    FILTER v._key in ${ids}
+                    COLLECT WITH COUNT INTO length
+                    RETURN  length
+                )
+                """;
+
+        Map<String,String> template=new HashMap<>();
+        template.put("news",NEWS);
+        template.put("ids", Jackson.toJsonString(interestIds));
+        template.put("skip", paginationFilter.skip().toString());
+        template.put("limit", paginationFilter.getLimit().toString());
+        template.put("order", paginationFilter.getOrder().name());
+
+        StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
+        String finalQuery = stringSubstitutor.replace(query);
+        ArangoCursor<PaginationResponse> cursor =
+                arangoOperations.query(finalQuery, PaginationResponse.class);
+        try (cursor) {
+            Optional<PaginationResponse> first = cursor.stream().findFirst();
+            if (first.isPresent()) {
+                PaginationResponse paginationResponse = first.get();
+
+                Long total = paginationResponse.getTotal();
+                PageInfo pageInfo = PageInfo.ofResult(total, paginationFilter);
+
+                List<News> newsList = paginationResponse.getList();
+
+                List<NewsResponse> responseList =
+                        new ArrayList<>();
+                for (News news : newsList) {
+                    NewsResponse newsResponse = newsRequestResponseMapper.getNewsResponse(news);
+                    NewsResponse newsResponseWithFiles = fileResponseMapper.getNewsResponseWithFiles
+                            (news.getId(), newsResponse);
+                    responseList.add(newsResponseWithFiles);
+
+                }
+                return new Pagination<>(responseList, pageInfo);
+            } else {
+                throw new ResourceNotFoundException("No data found");
+            }
+        } catch (IOException ioException) {
+            throw new RuntimeException(ioException);
+        }
     }
 
 }

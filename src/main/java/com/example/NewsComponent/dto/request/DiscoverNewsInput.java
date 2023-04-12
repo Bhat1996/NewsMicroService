@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
-import java.util.Set;
+import java.util.List;
 
 
 @Getter
@@ -13,6 +13,6 @@ import java.util.Set;
 public class DiscoverNewsInput {
     @NotNull
     private SearchType searchType;
-    Set<String> interestIds;
+    List<String> interestIds;
 
 }

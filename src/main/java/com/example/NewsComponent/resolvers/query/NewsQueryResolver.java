@@ -12,7 +12,7 @@ import com.example.NewsComponent.service.query.NewsQueryService;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
+import java.util.List;
 
 import static com.example.NewsComponent.enums.NewsStatus.PUBLISHED;
 import static com.example.NewsComponent.enums.SearchType.DISCOVER;
@@ -39,21 +39,20 @@ public class NewsQueryResolver implements GraphQLQueryResolver {
     // TODO: 12-04-2023 check here later make query for interest Ids
     public Pagination<NewsResponse> discoverNews(DiscoverNewsInput discoverNewsInput,
                                                  PaginationFilter paginationFilter) {
+
+
         NewsFilter newsFilter = new NewsFilter();
         SearchType searchType = discoverNewsInput.getSearchType();
         if (searchType.equals(FOR_YOU)) {
-            Set<String> interests = discoverNewsInput.getInterestIds();
+            List<String> interests = discoverNewsInput.getInterestIds();
             if (interests.isEmpty()) {
                 throw new GeneralBadRequestException("At Least Provide 1 Interest To Discover News");
             }
-            return newsQueryService.getAllNews(PUBLISHED, paginationFilter, newsFilter);
-        } else {
-            if(searchType.equals(DISCOVER)) {
-                return newsQueryService.getAllNews(PUBLISHED, paginationFilter, newsFilter);
-            }
-        }
+            return newsQueryService.getNewsFromInterest(interests, paginationFilter);
+        }else
+        return newsQueryService.getAllNews(PUBLISHED, paginationFilter, newsFilter);
 
-        return null;
+
     }
 }
 
