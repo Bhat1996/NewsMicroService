@@ -43,12 +43,12 @@ public class NewsHasCommentRepository {
     // TODO: 06-04-2023 use it
     public List<ResultDto> countNoOfComments(Set<String> ids) {
         String query = """
-              FOR doc IN ${NEWS}
+              FOR doc IN ${news}
                 FILTER doc._key IN ${ids}
                    LET value = (
                         FOR v in 1..1
                         OUTBOUND doc
-                       ${newsHasComment}
+                        ${newsHasComment}
                         return true
                    )
                    
@@ -60,6 +60,7 @@ public class NewsHasCommentRepository {
 
         Map<String, String> template = new HashMap<>();
         template.put("newsHasComment", NEWS_HAS_COMMENT);
+        template.put("news",NEWS);
         template.put("ids", Jackson.toJsonString(ids));
 
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);

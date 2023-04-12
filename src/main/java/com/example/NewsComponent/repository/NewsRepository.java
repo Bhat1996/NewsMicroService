@@ -30,6 +30,7 @@ import org.springframework.stereotype.Repository;
 import java.io.IOException;
 import java.util.*;
 
+import static com.example.NewsComponent.metadata.EdgeName.NEWS_HAS_INTEREST;
 import static com.example.NewsComponent.metadata.VertexName.NEWS;
 
 @Repository
@@ -130,7 +131,7 @@ public class NewsRepository {
                 FILTER doc.newsStatus == "PUBLISHED"
                     FOR v in 1..1
                     OUTBOUND doc
-                    newsHasInterest
+                    ${newsHasInterest}
                     FILTER v._key in ${ids}
                     LIMIT ${skip}, ${limit}
                     SORT doc.publishedDate ${order}
@@ -141,7 +142,7 @@ public class NewsRepository {
                     FILTER doc.newsStatus == "PUBLISHED"
                     FOR v in 1..1
                     OUTBOUND doc
-                    newsHasInterest
+                    ${newsHasInterest}
                     FILTER v._key in ${ids}
                     COLLECT WITH COUNT INTO length
                     RETURN  length
@@ -154,6 +155,7 @@ public class NewsRepository {
         template.put("skip", paginationFilter.skip().toString());
         template.put("limit", paginationFilter.getLimit().toString());
         template.put("order", paginationFilter.getOrder().name());
+        template.put("newsHasInterest",NEWS_HAS_INTEREST);
 
         StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
         String finalQuery = stringSubstitutor.replace(query);
