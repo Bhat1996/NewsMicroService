@@ -21,6 +21,8 @@ type  Query{
     PaginationFilter, newsFilter:NewsFilter ):PaginationResponse
 
     getNewsById(id:String):NewsResponse
+    discoverNews(discoverNewsInput:DiscoverNewsInput,
+        paginationFilter:PaginationFilter):PaginationResponse
 }
 input CommentRequest{
     id:String!
@@ -68,6 +70,10 @@ input FileInput{
     audios: [Upload]
     videos: [Upload]
     documents: [Upload]
+}
+input DiscoverNewsInput{
+    interestIds:[String]
+    searchType:SearchType
 }
 
 type PaginationResponse{
@@ -150,6 +156,11 @@ enum FileType {
 enum ValueFillingOption {
     MANDATORY,
     NON_MANDATORY
+}
+
+enum SearchType{
+    FOR_YOU,
+    DISCOVER
 }
 
 scalar Object

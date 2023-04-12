@@ -49,9 +49,8 @@ public class NewsQueryResolver implements GraphQLQueryResolver {
                 throw new GeneralBadRequestException("At Least Provide 1 Interest To Discover News");
             }
             return newsQueryService.getNewsFromInterest(interests, paginationFilter);
-        }else
+        }
         return newsQueryService.getAllNews(PUBLISHED, paginationFilter, newsFilter);
-
 
     }
 }
