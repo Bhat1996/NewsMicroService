@@ -34,4 +34,5 @@ public class CommonQueryService {
         resultDtos.forEach(resultDto -> result.put(resultDto.getId(), resultDto.getTotal()));
         return result;
     }
+
 }
