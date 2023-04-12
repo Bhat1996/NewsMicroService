@@ -3,6 +3,7 @@ package com.example.NewsComponent.repository.vertex;
 import com.arangodb.entity.MultiDocumentEntity;
 import com.example.NewsComponent.dto.internal.FileResults;
 import com.example.NewsComponent.exceptions.ResourceNotFoundException;
+import com.example.NewsComponent.service.helper.StreamPublisher;
 import com.example.NewsComponent.utils.ArangoIdUtils;
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDatabase;
@@ -40,13 +41,15 @@ public class FileRepository {
     private final ObjectMapper objectMapper;
     private final ArangoConverter arangoConverter;
     private final ArangoOperations arangoOperations;
+    private  final StreamPublisher streamPublisher;
 
     public FileRepository(ObjectMapper objectMapper,
                           ArangoConverter arangoConverter,
-                          ArangoOperations arangoOperations) {
+                          ArangoOperations arangoOperations, StreamPublisher streamPublisher) {
         this.objectMapper = objectMapper;
         this.arangoConverter = arangoConverter;
         this.arangoOperations = arangoOperations;
+        this.streamPublisher = streamPublisher;
     }
 
 
@@ -91,7 +94,7 @@ public class FileRepository {
 
         Map<String, Object> fileMap = savedFiles.stream().collect(toMap(File::getArangoId, Function.identity()));
         // TODO: 28-03-2023 check here
-//        streamPublisher.publish(fileMap);
+       streamPublisher.publish(fileMap);
         return savedFiles;
     }
 

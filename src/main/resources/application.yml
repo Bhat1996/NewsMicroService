@@ -12,3 +12,18 @@ graphql:
     max-query-depth: 50
 
 
+redis:
+  host: 112.196.108.244
+  port: 6379
+  database: 0
+  timeout: 60
+  password: CHuJukJQCrr23kLs
+  cache:
+    default:
+      duration: 2400
+    list:
+      -
+        name: userByName
+        duration: 600
+
+

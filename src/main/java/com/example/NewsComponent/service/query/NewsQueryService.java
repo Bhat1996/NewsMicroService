@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 public class NewsQueryService {
 
     private final NewsRepository newsRepository;
-    private  final NewsRequestResponseMapper newsRequestResponseMapper;
-    private  final FileResponseMapper fileResponseMapper;
+    private final NewsRequestResponseMapper newsRequestResponseMapper;
+    private final FileResponseMapper fileResponseMapper;
 
     public NewsQueryService(NewsRepository newsRepository,
                             NewsRequestResponseMapper newsRequestResponseMapper,
@@ -33,12 +33,11 @@ public class NewsQueryService {
         return newsRepository.getAllNews(newsFilter, paginationFilter, newsStatus);
     }
 
-    public NewsResponse getNewsById(String id){
+    public NewsResponse getNewsById(String id) {
         News newsById = newsRepository.getNewsById(id);
         NewsResponse newsResponse = newsRequestResponseMapper.getNewsResponse(newsById);
-      return   fileResponseMapper.getNewsResponseWithFiles(newsById.getId(),newsResponse);
+        return fileResponseMapper.getNewsResponseWithFiles(newsById.getId(), newsResponse);
     }
-
 
 
 }
