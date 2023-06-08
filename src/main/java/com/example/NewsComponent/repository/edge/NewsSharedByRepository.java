@@ -24,7 +24,7 @@ public class NewsSharedByRepository {
         DocumentCreateEntity<VPackSlice> createEntity = arangoDatabase.collection(NEWS_SHARED_BY)
                 .insertDocument(arangoConverter.write(newsSharedBy), new DocumentCreateOptions()
                         .streamTransactionId(transactionId).returnNew(true));
-        return arangoConverter.read(NewsSharedBy.class, createEntity.getNew());
 
+        return arangoConverter.read(NewsSharedBy.class, createEntity.getNew());
     }
 }

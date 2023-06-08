@@ -15,7 +15,7 @@ import com.arangodb.model.DocumentUpdateOptions;
 import com.arangodb.springframework.core.ArangoOperations;
 import com.arangodb.springframework.core.convert.ArangoConverter;
 import com.arangodb.velocypack.VPackSlice;
-import com.example.NewsComponent.domain.vertex.File;
+import com.example.NewsComponent.dto.vertex.File;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.apache.commons.collections4.CollectionUtils;
@@ -51,7 +51,6 @@ public class FileRepository {
         this.arangoOperations = arangoOperations;
         this.streamPublisher = streamPublisher;
     }
-
 
     public File saveFile(ArangoDatabase arangoDatabase, String transactionId, File file) {
         DocumentCreateEntity<VPackSlice> createEntity = arangoDatabase.collection(FILE)
@@ -92,9 +91,10 @@ public class FileRepository {
                 .map(vPackSlice -> arangoConverter.read(File.class, vPackSlice))
                 .toList();
 
-        Map<String, Object> fileMap = savedFiles.stream().collect(toMap(File::getArangoId, Function.identity()));
-        // TODO: 28-03-2023 check here
-       streamPublisher.publish(fileMap);
+        Map<String, Object> fileMap = savedFiles.stream()
+                                      .collect(toMap(File::getArangoId,
+                                                Function.identity()));
+        streamPublisher.publish(fileMap);
         return savedFiles;
     }
 

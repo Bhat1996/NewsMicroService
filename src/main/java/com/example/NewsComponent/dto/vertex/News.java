@@ -1,4 +1,4 @@
-package com.example.NewsComponent.domain;
+package com.example.NewsComponent.dto.vertex;
 
 import com.arangodb.springframework.annotation.ArangoId;
 import com.arangodb.springframework.annotation.Document;

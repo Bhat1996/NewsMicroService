@@ -32,8 +32,6 @@ public class NewsMutationResolver implements GraphQLMutationResolver {
     private  final LanguageValidator languageValidator;
     private  final NewsValidator newsValidator;
 
-
-
     public NewsResponse savedNews(@Valid NewsRequest newsRequest ,
                                   final DataFetchingEnvironment dataFetchingEnvironment){
         DefaultGraphQLServletContext context = dataFetchingEnvironment.getContext();
@@ -87,7 +85,6 @@ public class NewsMutationResolver implements GraphQLMutationResolver {
 
            FileInputMapper fileInputMapper = new FileInputMapper(newsRequest, parts);
            FileInputWithPart fileInputWithPart = fileInputMapper.getFileInputWithPart();
-//           newsValidator.validateMultipartFile(fileInputWithPart, httpServletRequest);
            languageValidator.languageValidateChecker(newsRequest);
            return newsCommandService.updateNews(newsRequest, fileInputWithPart);
        } else {

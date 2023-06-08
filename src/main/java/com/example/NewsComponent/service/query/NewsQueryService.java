@@ -1,6 +1,6 @@
 package com.example.NewsComponent.service.query;
 
-import com.example.NewsComponent.domain.News;
+import com.example.NewsComponent.dto.vertex.News;
 import com.example.NewsComponent.dto.request.NewsFilter;
 import com.example.NewsComponent.dto.response.NewsResponse;
 import com.example.NewsComponent.enums.NewsStatus;
@@ -12,7 +12,6 @@ import com.example.NewsComponent.dto.response.Pagination;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
 
 @Service
 public class NewsQueryService {
@@ -41,7 +40,8 @@ public class NewsQueryService {
         return fileResponseMapper.getNewsResponseWithFiles(newsById.getId(), newsResponse);
     }
 
-    public Pagination<NewsResponse> getNewsFromInterest(List<String> interestIds,PaginationFilter paginationFilter){
+    public Pagination<NewsResponse> getNewsFromInterest(List<String> interestIds,
+                                                        PaginationFilter paginationFilter){
         return newsRepository.getNewsFromInterests(interestIds, paginationFilter);
     }
 

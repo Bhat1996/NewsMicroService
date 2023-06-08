@@ -13,7 +13,7 @@ import static com.example.NewsComponent.metadata.EdgeName.NEWS_HAS_INTEREST;
 @Edge(NEWS_HAS_INTEREST)
 @Getter
 @Setter
-public class NewsHasInterest {
+public class NewsHasInterest{
     @Id
     private String id;
     @ArangoId

@@ -27,6 +27,7 @@ public class NotificationService {
 
     @SneakyThrows
     public String sendNotification(NotificationRequest notificationRequest) {
+        // TODO: 18-04-2023 put the url in application.properties file
         URI uri = URI.create("https://devapi.apnikheti.com/java-notification/api/send-notification");
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);

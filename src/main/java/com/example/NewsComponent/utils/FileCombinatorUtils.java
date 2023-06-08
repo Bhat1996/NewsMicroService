@@ -1,6 +1,6 @@
 package com.example.NewsComponent.utils;
 
-import com.example.NewsComponent.domain.vertex.File;
+import com.example.NewsComponent.dto.vertex.File;
 import com.example.NewsComponent.dto.request.FileDto;
 import com.example.NewsComponent.dto.request.FileKeyWithOriginalName;
 import com.example.NewsComponent.enums.FileType;

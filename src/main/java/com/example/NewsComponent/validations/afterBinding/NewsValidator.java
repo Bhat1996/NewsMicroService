@@ -131,7 +131,5 @@ public class NewsValidator {
         );
     }
 
-
-
-    }
+}
 

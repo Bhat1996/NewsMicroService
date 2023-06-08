@@ -25,6 +25,7 @@ public class UserService {
     }
 
     public String getIdOfCurrentUser() {
+        // TODO: 18-04-2023 add url in application.properties file
         String userUrl = "http://112.196.108.244:9008/graphql";
         String query = """
                     query {

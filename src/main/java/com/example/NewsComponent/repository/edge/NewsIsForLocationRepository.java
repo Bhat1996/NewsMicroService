@@ -20,8 +20,8 @@ public class NewsIsForLocationRepository {
     }
 
     public NewsIsForLocation saveNewsForLocation(ArangoDatabase arangoDatabase,
-                                             String transactionId,
-                                             NewsIsForLocation newsIsForLocation){
+                                                 String transactionId,
+                                                 NewsIsForLocation newsIsForLocation){
         DocumentCreateEntity<VPackSlice> documentCreateEntity = arangoDatabase.collection(NEWS_IS_FOR_LOCATION).
                 insertDocument(arangoConverter.write(newsIsForLocation),
                         new DocumentCreateOptions().streamTransactionId(transactionId).returnNew(true));

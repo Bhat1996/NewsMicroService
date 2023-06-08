@@ -39,8 +39,6 @@ public class NewsQueryResolver implements GraphQLQueryResolver {
     // TODO: 12-04-2023 check here later make query for interest Ids
     public Pagination<NewsResponse> discoverNews(DiscoverNewsInput discoverNewsInput,
                                                  PaginationFilter paginationFilter) {
-
-
         NewsFilter newsFilter = new NewsFilter();
         SearchType searchType = discoverNewsInput.getSearchType();
         if (searchType.equals(FOR_YOU)) {
@@ -51,7 +49,6 @@ public class NewsQueryResolver implements GraphQLQueryResolver {
             return newsQueryService.getNewsFromInterest(interests, paginationFilter);
         }
         return newsQueryService.getAllNews(PUBLISHED, paginationFilter, newsFilter);
-
     }
 }
 

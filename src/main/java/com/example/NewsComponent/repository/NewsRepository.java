@@ -5,12 +5,13 @@ import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.entity.DocumentCreateEntity;
 import com.arangodb.entity.DocumentUpdateEntity;
+import com.arangodb.model.AqlQueryOptions;
 import com.arangodb.model.DocumentCreateOptions;
 import com.arangodb.model.DocumentUpdateOptions;
 import com.arangodb.springframework.core.ArangoOperations;
 import com.arangodb.springframework.core.convert.ArangoConverter;
 import com.arangodb.velocypack.VPackSlice;
-import com.example.NewsComponent.domain.News;
+import com.example.NewsComponent.dto.vertex.News;
 import com.example.NewsComponent.dto.request.NewsFilter;
 import com.example.NewsComponent.dto.request.PaginationFilter;
 import com.example.NewsComponent.dto.response.NewsResponse;
@@ -46,15 +47,15 @@ public class NewsRepository {
 
     public News getNewsById(String id) {
         String query = """
-                FOR doc IN ${coll}
-                FILTER doc._key == '${id}'
+                FOR doc IN @@coll
+                FILTER doc._key == @id
                 RETURN doc
                 """;
-        Map<String, String> queryFiller = Map.of(
-                "coll", NEWS,
+        Map<String, Object> queryFiller = Map.of(
+                "@coll", NEWS,
                 "id", id);
-        String finalQuery = new StringSubstitutor(queryFiller).replace(query);
-        ArangoCursor<News> cursor = arangoOperations.query(finalQuery, News.class);
+
+        ArangoCursor<News> cursor = arangoOperations.query(query,queryFiller, News.class);
         try (cursor) {
             Optional<News> first = cursor.stream().findFirst();
             if (first.isPresent()) {
@@ -72,7 +73,6 @@ public class NewsRepository {
     public Pagination<NewsResponse> getAllNews(NewsFilter newsFilter,
                                                PaginationFilter paginationFilter,
                                                NewsStatus newsStatus) {
-
         String finalQuery = newsQueryGenerator.getQuery(newsFilter, paginationFilter, newsStatus);
         ArangoCursor<PaginationResponse> cursor =
                 arangoOperations.query(finalQuery, PaginationResponse.class);
@@ -104,7 +104,7 @@ public class NewsRepository {
         }
     }
 
-    public News saveNews(ArangoDatabase arangoDatabase, String transactionId, News news) {
+    public News saveNews(ArangoDatabase arangoDatabase,String transactionId, News news) {
 
         DocumentCreateEntity<VPackSlice> createEntity = arangoDatabase.collection(NEWS)
                 .insertDocument(arangoConverter.write(news),
@@ -123,44 +123,45 @@ public class NewsRepository {
 
     }
 
-    public Pagination<NewsResponse> getNewsFromInterests(List<String> interestIds,PaginationFilter paginationFilter){
+    // TODO: 08-06-2023 check the query /run
+    public Pagination<NewsResponse> getNewsFromInterests(List<String> interestIds,
+                                                         PaginationFilter paginationFilter){
 
         String query= """
                 Let list = (
-                FOR doc IN ${news}
+                FOR doc IN @@news
                 FILTER doc.newsStatus == "PUBLISHED"
                     FOR v in 1..1
                     OUTBOUND doc
-                    ${newsHasInterest}
-                    FILTER v._key in ${ids}
-                    LIMIT ${skip}, ${limit}
-                    SORT doc.publishedDate ${order}
+                    @@newsHasInterest
+                    FILTER v._key in @ids
+                    LIMIT @skip, @limit
+                    SORT doc.publishedDate @order@
                     RETURN doc
                 )
                 LET total = (
-                    FOR doc IN ${news}
+                    FOR doc IN @@news
                     FILTER doc.newsStatus == "PUBLISHED"
                     FOR v in 1..1
                     OUTBOUND doc
-                    ${newsHasInterest}
-                    FILTER v._key in ${ids}
+                    @@newsHasInterest
+                    FILTER v._key in @ids
                     COLLECT WITH COUNT INTO length
                     RETURN  length
                 )
                 """;
 
-        Map<String,String> template=new HashMap<>();
-        template.put("news",NEWS);
+        Map<String,Object> template=new HashMap<>();
+        template.put("@news",NEWS);
         template.put("ids", Jackson.toJsonString(interestIds));
         template.put("skip", paginationFilter.skip().toString());
         template.put("limit", paginationFilter.getLimit().toString());
         template.put("order", paginationFilter.getOrder().name());
-        template.put("newsHasInterest",NEWS_HAS_INTEREST);
+        template.put("@newsHasInterest",NEWS_HAS_INTEREST);
 
-        StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
-        String finalQuery = stringSubstitutor.replace(query);
+
         ArangoCursor<PaginationResponse> cursor =
-                arangoOperations.query(finalQuery, PaginationResponse.class);
+                arangoOperations.query(query,template, PaginationResponse.class);
         try (cursor) {
             Optional<PaginationResponse> first = cursor.stream().findFirst();
             if (first.isPresent()) {

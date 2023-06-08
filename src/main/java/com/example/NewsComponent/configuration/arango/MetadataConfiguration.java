@@ -1,4 +1,4 @@
-package com.example.NewsComponent.configuration.arangoConfig;
+package com.example.NewsComponent.configuration.arango;
 
 import com.example.NewsComponent.metadata.EdgeName;
 import com.example.NewsComponent.metadata.ViewName;
@@ -20,6 +20,7 @@ import static com.example.NewsComponent.metadata.VertexName.namesAsList;
 import static com.example.NewsComponent.utils.Not.not;
 
 public class MetadataConfiguration {
+
     private final ArangoDatabase arangoDatabase;
 
     public MetadataConfiguration(ArangoDatabase arangoDatabase) {

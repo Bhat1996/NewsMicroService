@@ -1,9 +1,9 @@
 package com.example.NewsComponent.service.command;
 
-import com.example.NewsComponent.domain.News;
+import com.example.NewsComponent.dto.vertex.News;
 import com.example.NewsComponent.domain.edge.*;
-import com.example.NewsComponent.domain.vertex.File;
-import com.example.NewsComponent.domain.vertex.NewsComments;
+import com.example.NewsComponent.dto.vertex.File;
+import com.example.NewsComponent.dto.vertex.NewsComments;
 import com.example.NewsComponent.dto.request.CommentRequest;
 import com.example.NewsComponent.dto.request.FileDto;
 import com.example.NewsComponent.dto.request.FileInputWithPart;
@@ -39,6 +39,9 @@ import static com.example.NewsComponent.utils.FileCombinatorUtils.getAllFilesToS
 
 @Service
 public class NewsCommandService {
+
+    @Value("${notification.priority}")
+    private String notificationPriority;
 
     private final NewsRepository newsRepository;
     private final FileDtoService fileDtoService;
@@ -263,7 +266,7 @@ public class NewsCommandService {
         messages.setContent(newsById.getTitle());
 
         NotificationRequest notificationRequest = getNotificationRequest(newsId, filter, messages);
-        // TODO: 20-03-2023 it
+        // TODO: 20-03-2023 test notification
         //notificationService.sendNotification(notificationRequest);
         return publishNews(newsId);
     }
@@ -281,6 +284,7 @@ public class NewsCommandService {
 
     public static Filter getFilter(Location location, Interests interests) {
         Filter filter = new Filter();
+        // TODO: 18-04-2023 verify the use of this and use it through application.properties
         filter.setApp("Apni Kheti");
         filter.setPhone("");
         filter.setInterests(interests);
@@ -288,10 +292,11 @@ public class NewsCommandService {
         return filter;
     }
 
-    public static NotificationRequest getNotificationRequest(String newsId, Filter filter, Messages messages) {
+    public NotificationRequest getNotificationRequest(String newsId, Filter filter, Messages messages) {
+        // TODO: 18-04-2023 read the static values from application.properties
         NotificationRequest notificationRequest = new NotificationRequest();
         notificationRequest.setAction(newsId);
-        notificationRequest.setPriority("Normal");
+        notificationRequest.setPriority(notificationPriority);
         notificationRequest.setFilter(filter);
         notificationRequest.setMessages(messages);
         notificationRequest.setValue("News Details");

@@ -7,7 +7,7 @@ import com.arangodb.model.DocumentCreateOptions;
 import com.arangodb.springframework.core.ArangoOperations;
 import com.arangodb.springframework.core.convert.ArangoConverter;
 import com.arangodb.velocypack.VPackSlice;
-import com.example.NewsComponent.domain.vertex.NewsComments;
+import com.example.NewsComponent.dto.vertex.NewsComments;
 import com.example.NewsComponent.exceptions.ResourceNotFoundException;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.stereotype.Repository;

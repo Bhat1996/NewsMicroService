@@ -17,9 +17,6 @@ public class EdgeName {
     public static final String REPLY_GIVEN_BY_USER = "replyGivenByUser";
     public static final String LIKE_GIVEN_BY_USER = "likeGivenByUser";
 
-
-
-
     public static List<String> namesAsList() {
         Class<EdgeName> edgeNameClass = EdgeName.class;
         Field[] declaredFields = edgeNameClass.getDeclaredFields();

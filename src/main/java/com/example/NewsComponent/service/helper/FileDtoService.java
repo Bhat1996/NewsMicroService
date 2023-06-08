@@ -29,8 +29,6 @@ public class FileDtoService {
                 fileInputWithPart.getDocuments());
     }
 
-
-
     @NotNull
     private FileDto getFileDto(List<Part> images,
                                        List<Part> audios,

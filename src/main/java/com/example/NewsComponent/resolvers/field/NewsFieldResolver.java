@@ -20,7 +20,7 @@ public class NewsFieldResolver implements GraphQLResolver<NewsResponse> {
     }
 
     public CompletableFuture<Long> numberOfComments(NewsResponse newsResponse,
-                                                      DataFetchingEnvironment dataFetchingEnvironment){
+                                                    DataFetchingEnvironment dataFetchingEnvironment){
         DataLoader<String, Long> dataLoader =
                 dataFetchingEnvironment.getDataLoader(DataLoaderRegistryFactory.NUMBER_OF_COMMENTS_LOADER);
         return dataLoader.load(newsResponse.getId());

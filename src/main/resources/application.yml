@@ -11,6 +11,19 @@ graphql:
     async-mode-enabled: true
     max-query-depth: 50
 
+#---------------Redis Database Configurations------------------------------------------
+#redis:
+#  host: ${REDIS_HOST:112.196.108.244}
+#  port: ${REDIS_PORT:6379}
+#  eventSourceDatabase: ${REDIS_EVENT_SOURCING_DATABASE_NUMBER:0}
+#  cacheDatabase: ${REDIS_CACHE_DATABASE_NUMBER:3}
+#  password: ${REDIS_PASSWORD:CHuJukJQCrr23kLs}
+#  cluster-nodes: ${REDIS_CLUSTER_NODES:}
+#  max-retries: ${REDIS_MAX_RETRY:}
+#  cache:
+#    default:
+#      duration: ${REDIS_DEFAULT_CACHE_DURATION_IN_MINUTES:600}
+#    list:
 
 redis:
   host: 112.196.108.244

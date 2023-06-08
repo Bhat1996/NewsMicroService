@@ -1,6 +1,6 @@
 package com.example.NewsComponent.mapper;
 
-import com.example.NewsComponent.domain.News;
+import com.example.NewsComponent.dto.vertex.News;
 import com.example.NewsComponent.dto.response.NewsResponse;
 import com.example.NewsComponent.dto.request.NewsRequest;
 import org.mapstruct.Mapper;

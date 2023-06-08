@@ -72,58 +72,67 @@ public class NewsQueryGenerator {
                 }
                 """;
 
-
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("news", NEWS);
         queryParams.put("uniqueSortedListBasedOnScore", getUniqueSortedListBasedOnScore(newsFilter.getSearchIt()));
 
-        if (StringUtils.isNotBlank(newsFilter.getLanguage())) {
-            queryParams.put("languageFilter", getLanguageFilter(newsFilter.getLanguage()));
-        } else {
-            queryParams.put("languageFilter", "");
-        }
+        // TODO: 18-04-2023 look for other options or design pattern for multiple if-else
+//        if (StringUtils.isNotBlank(newsFilter.getLanguage())) {
+//            queryParams.put("languageFilter", getLanguageFilter(newsFilter.getLanguage()));
+//        } else {
+//            queryParams.put("languageFilter", "");
+//        }
+//
+//        if (newsFilter.getCountryIds() != null) {
+//            queryParams.put("countryIds", getCountryIds(newsFilter.getCountryIds()));
+//        } else {
+//            queryParams.put("countryIds", "");
+//        }
+//
+//        if (newsFilter.getStateIds() != null) {
+//            queryParams.put("stateIds", getStateIds(newsFilter.getStateIds()));
+//        } else {
+//            queryParams.put("stateIds", "");
+//        }
+//
+//        if (newsFilter.getDistrictIds() != null) {
+//            queryParams.put("districtIds", getDistrictIds(newsFilter.getDistrictIds()));
+//        } else {
+//            queryParams.put("districtIds", "");
+//        }
+//
+//        if (newsFilter.getTehsilIds() != null) {
+//            queryParams.put("tehsilIds", getTehsilIds(newsFilter.getTehsilIds()));
+//        } else {
+//            queryParams.put("tehsilIds", "");
+//        }
+//
+//        if (newsFilter.getVillageIds() != null) {
+//            queryParams.put("villageIds", getVillageIds(newsFilter.getVillageIds()));
+//        } else {
+//            queryParams.put("villageIds", "");
+//        }
+//
+//        if (newsFilter.getStatus() != null) {
+//            queryParams.put("status", getStatusFilter(newsFilter.getStatus()));
+//        } else {
+//            queryParams.put("status", "");
+//        }
+//
+//        if (newsFilter.getDateFilter() != null) {
+//            queryParams.put("dateFilter", getDateFilter(newsFilter.getDateFilter()));
+//        } else {
+//            queryParams.put("dateFilter", "");
+//        }
 
-        if (newsFilter.getCountryIds() != null) {
-            queryParams.put("countryIds", getCountryIds(newsFilter.getCountryIds()));
-        } else {
-            queryParams.put("countryIds", "");
-        }
-
-        if (newsFilter.getStateIds() != null) {
-            queryParams.put("stateIds", getStateIds(newsFilter.getStateIds()));
-        } else {
-            queryParams.put("stateIds", "");
-        }
-
-        if (newsFilter.getDistrictIds() != null) {
-            queryParams.put("districtIds", getDistrictIds(newsFilter.getDistrictIds()));
-        } else {
-            queryParams.put("districtIds", "");
-        }
-
-        if (newsFilter.getTehsilIds() != null) {
-            queryParams.put("tehsilIds", getTehsilIds(newsFilter.getTehsilIds()));
-        } else {
-            queryParams.put("tehsilIds", "");
-        }
-
-        if (newsFilter.getVillageIds() != null) {
-            queryParams.put("villageIds", getVillageIds(newsFilter.getVillageIds()));
-        } else {
-            queryParams.put("villageIds", "");
-        }
-
-        if (newsFilter.getStatus() != null) {
-            queryParams.put("status", getStatusFilter(newsFilter.getStatus()));
-        } else {
-            queryParams.put("status", "");
-        }
-
-        if (newsFilter.getDateFilter() != null) {
-            queryParams.put("dateFilter", getDateFilter(newsFilter.getDateFilter()));
-        } else {
-            queryParams.put("dateFilter", "");
-        }
+        queryParams.put("languageFilter", StringUtils.isNotBlank(newsFilter.getLanguage()) ? getLanguageFilter(newsFilter.getLanguage()) : "");
+        queryParams.put("countryIds", newsFilter.getCountryIds() != null ? getCountryIds(newsFilter.getCountryIds()) : "");
+        queryParams.put("stateIds", newsFilter.getStateIds() != null ? getStateIds(newsFilter.getStateIds()) : "");
+        queryParams.put("districtIds", newsFilter.getDistrictIds() != null ? getDistrictIds(newsFilter.getDistrictIds()) : "");
+        queryParams.put("tehsilIds", newsFilter.getTehsilIds() != null ? getTehsilIds(newsFilter.getTehsilIds()) : "");
+        queryParams.put("villageIds", newsFilter.getVillageIds() != null ? getVillageIds(newsFilter.getVillageIds()) : "");
+        queryParams.put("status", newsFilter.getStatus() != null ? getStatusFilter(newsFilter.getStatus()) : "");
+        queryParams.put("dateFilter", newsFilter.getDateFilter() != null ? getDateFilter(newsFilter.getDateFilter()) : "");
 
         queryParams.put("order", paginationFilter.getOrder().toString());
         queryParams.put("skip", paginationFilter.skip().toString());
@@ -208,8 +217,7 @@ public class NewsQueryGenerator {
         }
         SearchTokenHelper tokenHelper = new SearchTokenHelper(searchIt);
 
-        String template = """
-                                
+        String template = """         
                 let searchedToken = tokens('${searchIt}', '${analyzer}')
                 ${anyWordMatchingTokens}
                                 
@@ -225,7 +233,6 @@ public class NewsQueryGenerator {
                 filter doc.status != 'DELETED'
                 let score = BM25(doc)
                 sort score DESC
-                    
                 """;
 
         Map<String, String> params = Map.of("searchIt", searchIt,
@@ -234,15 +241,12 @@ public class NewsQueryGenerator {
                 "anyWordMatchingTokens", getAnyWordMatchingTokens(tokenHelper),
                 "newsTitlePhraseFilters", getNewsTitlePhraseFilters(),
                 "newsDescriptionPhraseFilters", getNewsDescriptionPhraseFilters(),
-                "newsTitleAllTokenMatchFilters", getNewsTitleAllTokenMatchFilters()
-                , "newsDescriptionAllTokenMatchFilters", getNewsDescriptionAllTokenMatchFilters(),
+                "newsTitleAllTokenMatchFilters", getNewsTitleAllTokenMatchFilters(),
+                "newsDescriptionAllTokenMatchFilters", getNewsDescriptionAllTokenMatchFilters(),
                 "anyWordMatchingTokenFilter", getAnyWordMatchingTokenFilters(tokenHelper)
         );
 
-
         return new StringSubstitutor(params).replace(template);
-
-
     }
 
     private String getNewsTitleAllTokenMatchFilters() {

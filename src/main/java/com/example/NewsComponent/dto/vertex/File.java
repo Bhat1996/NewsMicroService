@@ -1,26 +1,31 @@
-package com.example.NewsComponent.domain.vertex;
+package com.example.NewsComponent.dto.vertex;
 
+import com.example.NewsComponent.enums.Status;
+import com.example.NewsComponent.metadata.VertexName;
 import com.arangodb.springframework.annotation.ArangoId;
 import com.arangodb.springframework.annotation.Document;
-import com.example.NewsComponent.metadata.VertexName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
-import java.time.LocalDateTime;
+import java.util.Map;
 
-@Document(VertexName.NEWS_COMMENTS)
+@Document(VertexName.FILE)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class NewsComments {
+public class File {
+
     @Id
     private String id;
     @ArangoId
     private String arangoId;
-    private String text;
-    private LocalDateTime createdDate;
+    private Map<String, String> imageTitle;
+    private Status status;
+    private String fileName;
+    private String fileKey;
+    private String fileType;
 }

@@ -40,7 +40,6 @@ public class NewsHasCommentRepository {
         return arangoConverter.read(NewsHasComment.class, createEntity.getNew());
     }
 
-    // TODO: 06-04-2023 use it
     public List<ResultDto> countNoOfComments(Set<String> ids) {
         String query = """
               FOR doc IN ${news}

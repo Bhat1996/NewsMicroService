@@ -1,6 +1,6 @@
 package com.example.NewsComponent;
 
-import com.example.NewsComponent.configuration.arangoConfig.MetadataConfiguration;
+import com.example.NewsComponent.configuration.arango.MetadataConfiguration;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.springframework.annotation.EnableArangoRepositories;
 import com.arangodb.springframework.core.ArangoOperations;

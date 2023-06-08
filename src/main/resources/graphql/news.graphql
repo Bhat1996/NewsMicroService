@@ -21,8 +21,10 @@ type  Query{
     PaginationFilter, newsFilter:NewsFilter ):PaginationResponse
 
     getNewsById(id:String):NewsResponse
+
     discoverNews(discoverNewsInput:DiscoverNewsInput,
         paginationFilter:PaginationFilter):PaginationResponse
+
 }
 input CommentRequest{
     id:String!

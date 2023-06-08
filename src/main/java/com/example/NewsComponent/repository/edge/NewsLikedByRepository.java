@@ -30,8 +30,8 @@ public class NewsLikedByRepository {
     }
 
     public NewsLikedBy saveNewsLikedByEdge(ArangoDatabase arangoDatabase,
-                                                           String transactionId,
-                                                           NewsLikedBy newsLikedBy){
+                                           String transactionId,
+                                           NewsLikedBy newsLikedBy){
         DocumentCreateEntity<VPackSlice> createEntity = arangoDatabase.collection("newsLikedBy")
                 .insertDocument(arangoConverter.write(newsLikedBy), new DocumentCreateOptions()
                         .streamTransactionId(transactionId).returnNew(true));

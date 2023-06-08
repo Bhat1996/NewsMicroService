@@ -1,4 +1,4 @@
-package com.example.NewsComponent.configuration.arangoConfig;
+package com.example.NewsComponent.configuration.arango;
 
 import com.arangodb.ArangoDB;
 import com.arangodb.springframework.annotation.EnableArangoRepositories;
@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableArangoRepositories
 public class ArangoConfig implements ArangoConfiguration {
-
 
     @Value("${arango.db.name}")
     private String dbName;
@@ -37,7 +36,6 @@ public class ArangoConfig implements ArangoConfiguration {
                 .password(password)
                 .maxConnections(maxConnectionForPool);
     }
-
 
     @Override
     public String database() {

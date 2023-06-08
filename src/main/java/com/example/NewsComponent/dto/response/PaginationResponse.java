@@ -1,6 +1,6 @@
 package com.example.NewsComponent.dto.response;
 
-import com.example.NewsComponent.domain.News;
+import com.example.NewsComponent.dto.vertex.News;
 import lombok.Getter;
 import lombok.Setter;
 
