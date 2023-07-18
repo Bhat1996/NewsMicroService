@@ -36,6 +36,7 @@ public class News {
     private List<String> interestIds;
     private String newsSource;
     private String sourceLink;
+    private Map<String,String> searchText;
     private LocalDateTime newsPublishDate;
     private Set<String> countryIds;
     private Set<String> stateIds;

@@ -35,6 +35,7 @@ public class NewsRequest {
     private String newsSource;
     @NotBlank(message = "provide valid sourceLink")
     private String sourceLink;
+    private Map<String,String> searchText;
     private LocalDateTime newsPublishDate;
     @NotNull
     private Set<String> countryIds;

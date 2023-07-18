@@ -74,6 +74,7 @@ public class NewsRepository {
                                                PaginationFilter paginationFilter,
                                                NewsStatus newsStatus) {
         String finalQuery = newsQueryGenerator.getQuery(newsFilter, paginationFilter, newsStatus);
+        System.out.println(finalQuery);
         ArangoCursor<PaginationResponse> cursor =
                 arangoOperations.query(finalQuery, PaginationResponse.class);
         try (cursor) {

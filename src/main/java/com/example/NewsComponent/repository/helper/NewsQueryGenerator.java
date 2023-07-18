@@ -197,17 +197,19 @@ public class NewsQueryGenerator {
         return stringSubstitutor.replace(query);
     }
 
+    // TODO: 08-06-2023 update here
     public static String getDateFilter(DateFilter dateFilter) {
         if (dateFilter.getStartDate() != null && dateFilter.getEndDate() != null) {
-            String query = "filter doc.newsPublishDate >= '${startDate}' And doc.newsPublishDate<= '${endDate}'";
-            Map<String, String> template = Map.of("startDate", dateFilter.getStartDate(),
+            String query = "filter doc.newsPublishDate >= @startDate And doc.newsPublishDate<= @endDate";
+            Map<String, String> params = Map.of("startDate", dateFilter.getStartDate(),
                     "endDate", dateFilter.getEndDate());
-            StringSubstitutor stringSubstitutor = new StringSubstitutor(template);
+            StringSubstitutor stringSubstitutor = new StringSubstitutor(params);
             return stringSubstitutor.replace(query);
         } else {
             return "";
         }
     }
+
 
     public String getUniqueSortedListBasedOnScore(String searchIt) {
         if (StringUtils.isBlank(searchIt)) {
@@ -226,6 +228,8 @@ public class NewsQueryGenerator {
                     boost(${newsTitlePhraseFilters} or ${newsDescriptionPhraseFilters}, 4)
                     or
                     boost(${newsTitleAllTokenMatchFilters} or ${newsDescriptionAllTokenMatchFilters}, 3)
+//                    or
+//                    boost(${newsTitleLikeFilters} , 1)
                     ${anyWordMatchingTokenFilter}
                     ,
                     '${analyzer}'
@@ -244,10 +248,25 @@ public class NewsQueryGenerator {
                 "newsTitleAllTokenMatchFilters", getNewsTitleAllTokenMatchFilters(),
                 "newsDescriptionAllTokenMatchFilters", getNewsDescriptionAllTokenMatchFilters(),
                 "anyWordMatchingTokenFilter", getAnyWordMatchingTokenFilters(tokenHelper)
+//                "newsTitleLikeFilters",getNewsTitleLikeFilters()
         );
 
         return new StringSubstitutor(params).replace(template);
     }
+
+//    private String getNewsDescriptionLikeFilters() {
+//        List<String> descriptionFilter = getActiveLanguageCode().stream()
+//                .map(languageCode -> "like(doc.description." + languageCode + ",searchedToken")
+//                .toList();
+//        return String.join("or", descriptionFilter);
+//    }
+
+//    private String getNewsTitleLikeFilters() {
+//        List<String> likeFilter = getActiveLanguageCode().stream()
+//                .map(languageCode -> "like(doc.title." + languageCode + " ,%searchedToken%)")
+//                .toList();
+//        return String.join(" or ", likeFilter);
+//    }
 
     private String getNewsTitleAllTokenMatchFilters() {
         List<String> titleAllTokenMatchFiltersList = getActiveLanguageCode().stream()

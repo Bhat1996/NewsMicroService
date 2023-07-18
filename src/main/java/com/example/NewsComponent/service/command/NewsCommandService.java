@@ -22,6 +22,7 @@ import com.example.NewsComponent.service.external.NotificationService;
 import com.example.NewsComponent.service.external.RewardService;
 import com.example.NewsComponent.service.external.UserService;
 import com.example.NewsComponent.service.helper.FileDtoService;
+import com.example.NewsComponent.service.helper.SearchTextService;
 import com.example.NewsComponent.service.transaction.Action;
 import com.example.NewsComponent.service.transaction.TransactionalWrapper;
 import com.example.NewsComponent.dto.request.NewsRequest;
@@ -62,6 +63,8 @@ public class NewsCommandService {
     private final NewsSharedByRepository newsSharedByRepository;
     private final RewardService rewardService;
 
+    private final SearchTextService searchTextService;
+
     @Value("${reward.service.onLikeNews}")
     private String rewardServiceEndPointOnLikeNews;
 
@@ -88,7 +91,7 @@ public class NewsCommandService {
                               NewsCommentsRepository newsCommentsRepository,
                               CommentHasReplyRepository commentHasReplyRepository,
                               NewsSharedByRepository newsSharedByRepository,
-                              RewardService rewardService) {
+                              RewardService rewardService, SearchTextService searchTextService) {
         this.newsRepository = newsRepository;
         this.fileDtoService = fileDtoService;
         this.newsHasInterestRepository = newsHasInterestRepository;
@@ -107,11 +110,13 @@ public class NewsCommandService {
         this.commentHasReplyRepository = commentHasReplyRepository;
         this.newsSharedByRepository = newsSharedByRepository;
         this.rewardService = rewardService;
+        this.searchTextService = searchTextService;
     }
 
 
     public NewsResponse saveNewsResponse(NewsRequest newsRequest, FileInputWithPart fileInputWithPart) {
         News newsForSaving = newsRequestResponseMapper.getNewsForSaving(newsRequest);
+        searchTextService.createSearchText(newsForSaving);
         FileDto fileDto = fileDtoService.getFileDto(fileInputWithPart);
 
         List<String> interestIds = newsRequest.getInterestIds();
@@ -215,6 +220,7 @@ public class NewsCommandService {
         News news = newsRepository.getNewsById(newsRequest.getId());
         FileDto fileDto = fileDtoService.getFileDto(fileInputWithPart);
         News newsForSaving = newsRequestResponseMapper.updateNews(news, newsRequest);
+        searchTextService.createSearchText(newsForSaving);
 
         Action<News> action = (arangoDatabase, transactionId) -> {
             News savedNews = newsRepository.updateNews(arangoDatabase, transactionId, newsForSaving);
