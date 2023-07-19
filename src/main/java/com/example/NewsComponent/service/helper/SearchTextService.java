@@ -1,20 +1,20 @@
 package com.example.NewsComponent.service.helper;
 
 import com.example.NewsComponent.dto.vertex.News;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 public class SearchTextService {
-    // TODO: 16-07-2023 while adding news take title and desc. for searchText.
-    //if searchText is used make a webClient call to other service.
-
-    //other way is this: loop on news
     private final ObjectMapper objectMapper;
 
     public SearchTextService(ObjectMapper objectMapper) {
@@ -63,7 +63,12 @@ public class SearchTextService {
 
         boolean englishTitleNotBlank = StringUtils.isNotBlank(title.get("en"));
         if (englishTitleNotBlank) {
+
+            Pattern p=Pattern.compile("\s");
+            Matcher matcher=p.matcher("[s]");
+            String[] s=p.split("en");
             engData.add(title.get("en"));
+            System.out.println(engData);
         }
 
         boolean hindiTitleNotBlank = StringUtils.isNotBlank(title.get("hn"));
@@ -75,6 +80,28 @@ public class SearchTextService {
         if (punjabiTitleNotBlank) {
             punjabiData.add(title.get("pb"));
         }
+
+    }
+
+    public String searchPatternForSearchText(String regex, String text){
+//        Pattern pattern = Pattern.compile(regex);
+//        Matcher matcher = pattern.matcher(text);
+//        int matches = 0;
+//        while (matcher.find()) {
+//            matches++;
+//        }
+//        return matches;
+
+        String excludePattern = "\\b(?:is|and|to|a|the|of|this|an)\\b";
+
+        // Create a Pattern object and compile the regex pattern.
+        Pattern pattern1 = Pattern.compile(excludePattern, Pattern.CASE_INSENSITIVE);
+
+        // Create a Matcher object to find matches in the input string.
+        Matcher matcher1 = pattern1.matcher(text);
+
+        // Replace the matched words with an empty string and return the result.
+        return matcher1.replaceAll("");
 
     }
 
