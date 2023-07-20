@@ -50,6 +50,6 @@ redis:
       duration: 2400
     list:
       -
-        name: searchTextCache
+        name: matcher1
         duration: 600
 
