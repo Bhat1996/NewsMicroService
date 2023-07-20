@@ -25,18 +25,31 @@ graphql:
 #      duration: ${REDIS_DEFAULT_CACHE_DURATION_IN_MINUTES:600}
 #    list:
 
+#redis:
+#  host: 112.196.108.244
+#  port: 6379
+#  database: 0
+#  timeout: 60
+#  password: CHuJukJQCrr23kLs
+#  cache:
+#    default:
+#      duration: 2400
+#    list:
+#      -
+#        name: searchTextCache
+#        duration: 600
+
 redis:
-  host: 112.196.108.244
+  host: localhost
   port: 6379
   database: 0
   timeout: 60
-  password: CHuJukJQCrr23kLs
+  password:
   cache:
     default:
       duration: 2400
     list:
       -
-        name: userByName
+        name: searchTextCache
         duration: 600
-
 

@@ -9,11 +9,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.event.EventListener;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan(basePackages = "com.example.NewsComponent.configuration.properties")
 @EnableArangoRepositories
+@EnableCaching
 public class NewsComponentApplication {
 
 	@Value("${arango.db.name}")
