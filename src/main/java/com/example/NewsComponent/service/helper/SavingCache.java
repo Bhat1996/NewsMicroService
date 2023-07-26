@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 public class SavingCache {
 
     @Cacheable(value = "matcher1", key = "#text")
-    public String searchPatternForSearchText(final String text){
+    public String searchPatternForSearchText(String text){
 
         String excludePattern = "\\b(?:is|and|to|a|the|of|this|an|for|in|as|by|it)\\b";
 

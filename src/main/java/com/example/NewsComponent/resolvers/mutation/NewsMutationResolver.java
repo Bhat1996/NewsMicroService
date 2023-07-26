@@ -3,6 +3,7 @@ package com.example.NewsComponent.resolvers.mutation;
 import com.example.NewsComponent.domain.edge.NewsSharedBy;
 import com.example.NewsComponent.dto.request.CommentRequest;
 import com.example.NewsComponent.dto.response.NewsResponse;
+import com.example.NewsComponent.dto.vertex.News;
 import com.example.NewsComponent.validations.LanguageValidator;
 import com.example.NewsComponent.dto.request.FileInputWithPart;
 import com.example.NewsComponent.dto.request.NewsRequest;
@@ -72,6 +73,7 @@ public class NewsMutationResolver implements GraphQLMutationResolver {
    public String deleteFile(@NotBlank String fileId){
         return newsCommandService.deleteFiles(fileId);
    }
+
 
 
    public NewsResponse updateNews(@Valid NewsRequest newsRequest,

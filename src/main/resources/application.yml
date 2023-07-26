@@ -25,6 +25,7 @@ graphql:
 #      duration: ${REDIS_DEFAULT_CACHE_DURATION_IN_MINUTES:600}
 #    list:
 
+
 #redis:
 #  host: 112.196.108.244
 #  port: 6379
